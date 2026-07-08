@@ -1,0 +1,148 @@
+<!--
+  Build a Spell docs — accessibility theming.
+
+  Mirrors NeoOrigins' docs a11y layer: a light/dark toggle plus four
+  colourblind-safe palettes, persisted in localStorage so a choice sticks
+  across pages:
+
+      buildaspell.ui.theme    -> "dark" (default) | "light"
+      buildaspell.ui.palette  -> "default" (Arcane) | protan | deutan | tritan | mono
+
+  Two parts:
+    1. A no-flash inline script that sets data-theme / data-palette on <html>
+       BEFORE first paint.
+    2. A DOMContentLoaded script that injects an accessible control bar into
+       just-the-docs' aux-nav and persists changes.
+
+  The actual colours live in _sass/custom/custom.scss, keyed off these
+  attributes. Okabe-Ito CB-safe accents; colour is never the only cue.
+-->
+<script>
+  // ── 1. No-flash: apply saved prefs before paint ──────────────────────
+  (function () {
+    try {
+      var root = document.documentElement;
+
+      var theme = localStorage.getItem('buildaspell.ui.theme');
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme'); // dark is the implicit default
+
+      var palette = localStorage.getItem('buildaspell.ui.palette');
+      if (palette && palette !== 'default') {
+        root.setAttribute('data-palette', palette);
+      } else {
+        root.removeAttribute('data-palette');
+      }
+    } catch (e) {
+      /* localStorage blocked — fall back to default dark/arcane. */
+    }
+  })();
+</script>
+
+<script>
+  // ── 2. Inject + wire the control bar ─────────────────────────────────
+  (function () {
+    var THEME_KEY = 'buildaspell.ui.theme';
+    var PALETTE_KEY = 'buildaspell.ui.palette';
+
+    var PALETTES = [
+      { id: 'default', label: 'Default', desc: 'Arcane colours' },
+      { id: 'protan', label: 'Protanopia', desc: 'Red-deficient safe palette' },
+      { id: 'deutan', label: 'Deuteranopia', desc: 'Green-deficient safe palette' },
+      { id: 'tritan', label: 'Tritanopia', desc: 'Blue-deficient safe palette' },
+      { id: 'mono', label: 'Monochrome', desc: 'No colour cues' }
+    ];
+
+    function read(key, fallback) {
+      try { return localStorage.getItem(key) || fallback; }
+      catch (e) { return fallback; }
+    }
+    function write(key, value) {
+      try { localStorage.setItem(key, value); } catch (e) { /* ignore */ }
+    }
+
+    function currentTheme() {
+      return read(THEME_KEY, 'dark') === 'light' ? 'light' : 'dark';
+    }
+    function currentPalette() {
+      return read(PALETTE_KEY, 'default');
+    }
+
+    function applyTheme(theme) {
+      var root = document.documentElement;
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      write(THEME_KEY, theme);
+    }
+    function applyPalette(palette) {
+      var root = document.documentElement;
+      if (palette && palette !== 'default') root.setAttribute('data-palette', palette);
+      else root.removeAttribute('data-palette');
+      write(PALETTE_KEY, palette);
+    }
+
+    function build() {
+      var host = document.querySelector('.aux-nav .aux-nav-list')
+        || document.querySelector('.aux-nav')
+        || document.querySelector('.site-header');
+      if (!host || document.getElementById('bas-a11y-controls')) return;
+
+      var bar = document.createElement('div');
+      bar.id = 'bas-a11y-controls';
+      bar.className = 'bas-a11y-controls';
+
+      // Theme toggle — aria-pressed reflects "light is on".
+      var theme = currentTheme();
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'bas-theme-toggle';
+      btn.className = 'bas-a11y-btn';
+      btn.setAttribute('aria-pressed', String(theme === 'light'));
+      function labelFor(t) {
+        return t === 'light' ? 'Light theme (switch to dark)' : 'Dark theme (switch to light)';
+      }
+      function textFor(t) { return t === 'light' ? 'Light' : 'Dark'; }
+      btn.setAttribute('aria-label', labelFor(theme));
+      btn.textContent = textFor(theme);
+      btn.addEventListener('click', function () {
+        var next = currentTheme() === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        btn.setAttribute('aria-pressed', String(next === 'light'));
+        btn.setAttribute('aria-label', labelFor(next));
+        btn.textContent = textFor(next);
+      });
+
+      // Palette — native <select> with a visible label (fully accessible).
+      var wrap = document.createElement('span');
+      wrap.className = 'bas-a11y-palette';
+      var lbl = document.createElement('label');
+      lbl.setAttribute('for', 'bas-palette-select');
+      lbl.textContent = 'Palette';
+      var sel = document.createElement('select');
+      sel.id = 'bas-palette-select';
+      sel.className = 'bas-a11y-select';
+      var active = currentPalette();
+      PALETTES.forEach(function (p) {
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.label;
+        opt.title = p.desc;
+        if (p.id === active) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function () { applyPalette(sel.value); });
+
+      wrap.appendChild(lbl);
+      wrap.appendChild(sel);
+      bar.appendChild(btn);
+      bar.appendChild(wrap);
+      host.appendChild(bar);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', build);
+    } else {
+      build();
+    }
+  })();
+</script>

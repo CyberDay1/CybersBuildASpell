@@ -1,0 +1,5 @@
+{
+  "required_effects": ["blink", "recall", "teleport"],
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "emergency_escape" } ]
+}

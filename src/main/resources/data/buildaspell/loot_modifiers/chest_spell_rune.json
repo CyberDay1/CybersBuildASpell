@@ -1,0 +1,22 @@
+{
+  "type": "buildaspell:add_item",
+  "conditions": [
+    {
+      "condition": "minecraft:random_chance",
+      "chance": 0.05
+    },
+    {
+      "condition": "minecraft:location_check",
+      "predicate": {
+        "block": {
+          "blocks": [
+            "minecraft:chest",
+            "minecraft:trapped_chest",
+            "minecraft:ender_chest"
+          ]
+        }
+      }
+    }
+  ],
+  "item": "buildaspell:spell_rune"
+}

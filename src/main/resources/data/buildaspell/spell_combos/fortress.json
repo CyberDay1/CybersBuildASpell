@@ -1,0 +1,6 @@
+{
+  "required_effects": ["conjure"],
+  "required_modifiers": { "increased_area": 1, "duration": 1 },
+  "min_components": 2,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "fortress" } ]
+}

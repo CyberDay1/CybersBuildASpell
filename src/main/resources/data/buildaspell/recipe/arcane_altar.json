@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ODO",
+    "EBE",
+    "OOO"
+  ],
+  "key": {
+    "O": "minecraft:obsidian",
+    "D": "minecraft:diamond",
+    "E": "minecraft:ender_eye",
+    "B": "minecraft:enchanting_table"
+  },
+  "result": {
+    "id": "buildaspell:arcane_altar",
+    "count": 1
+  }
+}

@@ -1,0 +1,61 @@
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+.kotlin
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Generated Resources ###
+src/generated/
+
+### NeoForge / ModDev runtime artifacts ###
+run/
+com/
+net/
+NUL
+
+### Loose build artifacts ###
+build_log.txt
+build_output.log
+build_output.txt
+/-p/
+
+### Untracked local staging / stale reference (not part of the build) ###
+/Assets/
+UI_EXPORT/
+repo.md
+libs/sodium-neoforge-0.8.4+mc1.21.11.jar

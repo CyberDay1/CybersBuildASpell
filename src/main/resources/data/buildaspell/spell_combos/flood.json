@@ -1,0 +1,6 @@
+{
+  "required_effects": ["create_water"],
+  "required_modifiers": { "increased_area": 1, "chain": 1 },
+  "min_components": 4,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "flood" } ]
+}
