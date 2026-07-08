@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "buildaspell:item/arcane_altar",
+    "model": {
+      "type": "buildaspell:arcane_altar"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "required_effects": ["launch", "levitation", "slow_fall"],
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "creative_flight" } ]
+}

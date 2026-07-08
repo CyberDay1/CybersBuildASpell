@@ -1,0 +1,7 @@
+{
+  "required_effects": ["launch", "explosion", "ignite"],
+  "required_modifiers": { "increased_power": 2 },
+  "min_components": 5,
+  "modifier_caps": { "increased_power": 2 },
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "meteor_strike" } ]
+}

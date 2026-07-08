@@ -1,0 +1,6 @@
+{
+  "required_effects": ["pull", "launch"],
+  "required_modifiers": { "increased_area": 1 },
+  "min_components": 4,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "tornado" } ]
+}

@@ -1,0 +1,5 @@
+{
+  "required_effects": ["summon", "teleport", "damage"],
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "vexes" } ]
+}
