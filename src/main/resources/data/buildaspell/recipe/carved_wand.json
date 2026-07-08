@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "buildaspell:worn_wand"
+    },
+    {
+      "item": "buildaspell:spell_rune"
+    }
+  ],
+  "result": {
+    "id": "buildaspell:carved_wand",
+    "count": 1
+  }
+}

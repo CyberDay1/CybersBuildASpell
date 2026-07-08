@@ -1,0 +1,61 @@
+name: Deploy Docs to GitHub Pages
+
+# Builds the Jekyll docs site (just-the-docs) from this branch's docs/ folder
+# and publishes it to GitHub Pages at https://cyberday1.github.io/CybersBuildASpell/
+#
+# Triggers:
+#   - push to master touching docs/ or this workflow
+#   - workflow_dispatch (manual redeploy)
+#
+# One-time repo setup: Settings -> Pages -> Source must be "GitHub Actions".
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One Pages deploy at a time; don't cancel in-progress so a queued run still
+# lands cleanly.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build docs with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

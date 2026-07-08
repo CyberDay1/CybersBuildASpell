@@ -1,0 +1,6 @@
+{
+  "required_effects": ["summon", "damage"],
+  "required_modifiers": { "increased_power": 2, "increased_area": 1 },
+  "min_components": 4,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "vindicators" } ]
+}

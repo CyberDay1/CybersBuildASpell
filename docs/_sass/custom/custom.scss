@@ -1,0 +1,190 @@
+// Build a Spell docs — accessibility theme overrides.
+//
+// just-the-docs auto-imports this file AFTER the compiled `arcane` colour
+// scheme, so the rules here win at equal specificity. The no-flash script in
+// _includes/head_custom.html sets `data-theme` / `data-palette` on <html>;
+// this file maps those attributes to colours.
+//
+// Strategy: one block of CSS custom properties per theme/palette, then a
+// single set of consume-rules that re-paint just-the-docs' rendered
+// selectors from those properties. The four Okabe-Ito colourblind-safe
+// palettes match NeoOrigins' docs so the two sites behave identically.
+//
+// Accessibility: every accent is paired with a non-colour cue (links are
+// underlined, active nav has a weight/inset-border change) so meaning is
+// never carried by hue alone — covers the `mono` palette and all CB users.
+
+// ── Dark / Arcane (implicit default — no data-theme attribute) ──────────
+// Teal-obsidian base + amethyst accent, lifted from the in-game GuiTheme
+// (SCRIM / PANEL surfaces, HEADER cyan-mint, AMETHYST accent) so the docs
+// match the Spell Builder and Arcane Altar UI.
+:root {
+  --bas-bg:        #0a181c;
+  --bas-surface:   #12262d;
+  --bas-surface-2: #0e2026;
+  --bas-border:    #26464e;
+  --bas-text:      #dcecec;
+  --bas-heading:   #b8ecf0;
+  --bas-muted:     #9db5b8;
+  --bas-code-bg:   #12262d;
+  --bas-accent:    #ae74e8;
+  --bas-accent-2:  #34e3c2;
+  --bas-on-accent: #1a0b2e;
+}
+
+// ── Light (teal-tinted) ─────────────────────────────────────────────────
+html[data-theme='light'] {
+  --bas-bg:        #f2f8f8;
+  --bas-surface:   #ffffff;
+  --bas-surface-2: #e2eeee;
+  --bas-border:    #c4dadb;
+  --bas-text:      #10242a;
+  --bas-heading:   #0c2e34;
+  --bas-muted:     #3f5c60;
+  --bas-code-bg:   #eaf3f3;
+  --bas-accent:    #7c3aed;
+  --bas-accent-2:  #0d9488;
+  --bas-on-accent: #ffffff;
+}
+
+// ── Colourblind-safe accent overrides (Okabe-Ito) ───────────────────────
+// Only the accent pair changes; surfaces/text inherit from the theme above.
+
+// protan
+html:not([data-theme='light'])[data-palette='protan'] { --bas-accent: #5a9bd4; --bas-accent-2: #e69f00; --bas-on-accent: #051522; }
+html[data-theme='light'][data-palette='protan']        { --bas-accent: #2f6fab; --bas-accent-2: #9a6a00; --bas-on-accent: #ffffff; }
+
+// deutan
+html:not([data-theme='light'])[data-palette='deutan'] { --bas-accent: #2a8fcf; --bas-accent-2: #e69f00; --bas-on-accent: #04121d; }
+html[data-theme='light'][data-palette='deutan']        { --bas-accent: #0072b2; --bas-accent-2: #9a6a00; --bas-on-accent: #ffffff; }
+
+// tritan
+html:not([data-theme='light'])[data-palette='tritan'] { --bas-accent: #2e9c52; --bas-accent-2: #cc6677; --bas-on-accent: #03150a; }
+html[data-theme='light'][data-palette='tritan']        { --bas-accent: #117733; --bas-accent-2: #a83f50; --bas-on-accent: #ffffff; }
+
+// mono — no hue cues; relies entirely on the non-colour redundancy below
+html:not([data-theme='light'])[data-palette='mono'] { --bas-accent: #9aa3af; --bas-accent-2: #c2c9d4; --bas-on-accent: #0d1118; }
+html[data-theme='light'][data-palette='mono']        { --bas-accent: #5a626f; --bas-accent-2: #6b737f; --bas-on-accent: #ffffff; }
+
+// ── Consume: re-paint just-the-docs surfaces ────────────────────────────
+
+body {
+  background-color: var(--bas-bg);
+  color: var(--bas-text);
+}
+
+.side-bar,
+.search {
+  background-color: var(--bas-surface-2);
+}
+
+.main-content {
+  h1, h2, h3, h4, h5, h6,
+  .text-alpha, .text-beta, .text-gamma, .text-delta, .text-epsilon {
+    color: var(--bas-heading);
+  }
+}
+
+// Links — colour PLUS a persistent underline so the cue survives mono /
+// any CB palette and greyscale printing.
+.main-content a:not(.btn),
+.site-title,
+a.nav-list-expander {
+  color: var(--bas-accent);
+}
+.main-content a:not(.btn) {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+// Sidebar nav — active link gets an accent inset border (shape cue) in
+// addition to the accent colour + bold weight, so "you are here" reads
+// without relying on hue.
+.nav-list .nav-list-item .nav-list-link {
+  color: var(--bas-text);
+  &:hover { background-color: var(--bas-surface); }
+  &.active {
+    color: var(--bas-accent);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 0 var(--bas-accent);
+  }
+}
+.nav-list .nav-list-item .nav-list-expander svg { color: var(--bas-muted); }
+
+// Code & tables.
+code {
+  background-color: var(--bas-code-bg);
+  border-color: var(--bas-border);
+}
+.highlight,
+div.highlighter-rouge,
+figure.highlight,
+pre.highlight {
+  background-color: var(--bas-code-bg);
+}
+table { background-color: var(--bas-surface); }
+th, td { border-color: var(--bas-border); }
+tr:nth-child(2n) { background-color: var(--bas-surface-2); }
+
+// Rules & borders.
+hr,
+.main-header,
+.site-header { border-color: var(--bas-border); }
+
+// Search box.
+.search-input {
+  background-color: var(--bas-surface);
+  color: var(--bas-text);
+}
+.search-result { background-color: var(--bas-surface); }
+.search-result:hover,
+.search-result.active { background-color: var(--bas-surface-2); }
+
+// Primary button.
+.btn-primary {
+  background-color: var(--bas-accent);
+  color: var(--bas-on-accent);
+  background-image: none;
+  &:hover { filter: brightness(1.08); }
+}
+
+// ── The injected control bar (from head_custom.html) ────────────────────
+.bas-a11y-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+  font-size: 0.75rem;
+}
+.bas-a11y-btn {
+  cursor: pointer;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--bas-border);
+  border-radius: 4px;
+  background-color: var(--bas-surface);
+  color: var(--bas-text);
+  font: inherit;
+  line-height: 1.6;
+}
+.bas-a11y-btn:hover { border-color: var(--bas-accent); }
+.bas-a11y-palette {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.bas-a11y-palette label { color: var(--bas-muted); }
+.bas-a11y-select {
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--bas-border);
+  border-radius: 4px;
+  background-color: var(--bas-surface);
+  color: var(--bas-text);
+  font: inherit;
+}
+
+// Visible keyboard focus on the injected controls.
+.bas-a11y-btn:focus-visible,
+.bas-a11y-select:focus-visible {
+  outline: 2px solid var(--bas-accent);
+  outline-offset: 2px;
+}
