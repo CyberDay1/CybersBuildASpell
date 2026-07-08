@@ -1,0 +1,6 @@
+{
+  "required_effects": ["freeze", "pull"],
+  "required_modifiers": { "increased_area": 2, "duration": 1 },
+  "min_components": 5,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "blizzard" } ]
+}

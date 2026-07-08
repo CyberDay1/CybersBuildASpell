@@ -1,0 +1,6 @@
+{
+  "required_effects": ["summon", "heal"],
+  "required_modifiers": { "increased_power": 1 },
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "iron_golem" } ]
+}

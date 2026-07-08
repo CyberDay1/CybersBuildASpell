@@ -1,0 +1,6 @@
+{
+  "required_effects": ["pull", "teleport"],
+  "required_modifiers": { "increased_area": 2 },
+  "min_components": 4,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "black_hole" } ]
+}

@@ -1,0 +1,70 @@
+title: Build a Spell
+description: A component-based spell creation system for NeoForge — design spells from delivery methods, effects, and modifiers.
+
+# Theme — just-the-docs via remote_theme (GitHub Pages safe-list supports
+# jekyll-remote-theme). "Arcane" custom scheme (deep space base + amethyst
+# accent) defined in _sass/color_schemes/arcane.scss, tuned to the in-game
+# Spell Builder palette (teal-arcane base, amethyst-purple signature accent).
+remote_theme: just-the-docs/just-the-docs
+color_scheme: arcane
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+# GitHub Pages metadata
+github:
+  is_project_page: true
+  repository_url: https://github.com/CyberDay1/CybersBuildASpell
+
+# Markdown rendering
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
+# Permalinks: keep file paths stable so deep-links resolve
+permalink: /:basename
+
+# just-the-docs configuration
+search_enabled: true
+search:
+  heading_level: 3
+  previews: 2
+  preview_words_before: 3
+  preview_words_after: 3
+  tokenizer_separator: /[\s\-/]+/
+  rel_url: true
+  button: false
+
+heading_anchors: true
+
+# Aux links (top-right of every page)
+aux_links:
+  "View on GitHub":
+    - "https://github.com/CyberDay1/CybersBuildASpell"
+  "Releases":
+    - "https://github.com/CyberDay1/CybersBuildASpell/releases"
+  "Issues":
+    - "https://github.com/CyberDay1/CybersBuildASpell/issues"
+aux_links_new_tab: true
+
+# Footer
+footer_content: 'Build a Spell — source available on <a href="https://github.com/CyberDay1/CybersBuildASpell">GitHub</a>. Built by CyberDay1.'
+
+# Show "Edit this page on GitHub" link
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/CyberDay1/CybersBuildASpell"
+gh_edit_branch: "master"
+gh_edit_source: docs
+gh_edit_view_mode: "tree"
+
+# Files Jekyll should ignore when building the site
+exclude:
+  - README.md
+  - "*.bak"
+  - Gemfile
+  - Gemfile.lock
+  - vendor/

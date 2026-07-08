@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "RNR",
+    "RWR",
+    "RHR"
+  ],
+  "key": {
+    "R": "buildaspell:spell_rune",
+    "N": "minecraft:nether_star",
+    "W": "buildaspell:carved_wand",
+    "H": "minecraft:dragon_head"
+  },
+  "result": {
+    "id": "buildaspell:runic_wand",
+    "count": 1
+  }
+}

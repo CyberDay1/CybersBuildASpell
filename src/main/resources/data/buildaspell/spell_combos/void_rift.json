@@ -1,0 +1,6 @@
+{
+  "required_effects": ["teleport"],
+  "required_modifiers": { "duration": 1, "increased_area": 1 },
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "void_rift" } ]
+}

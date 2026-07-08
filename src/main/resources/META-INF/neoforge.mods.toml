@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="All Rights Reserved"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''${mod_description}'''
+logoFile="logo.png"
+
+[[dependencies.buildaspell]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.buildaspell]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.buildaspell]]
+modId="neoportals"
+type="optional"
+versionRange="[1.0.0,)"
+ordering="AFTER"
+side="BOTH"
+
+# Optional: only used to render the in-game guidebook. All Modonomicon usage is
+# datagen-only, so the mod runs fine without it (you just get no guidebook).
+[[dependencies.buildaspell]]
+modId="modonomicon"
+type="optional"
+versionRange="[1.120.0,)"
+ordering="AFTER"
+side="BOTH"

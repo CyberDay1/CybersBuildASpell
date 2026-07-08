@@ -1,0 +1,6 @@
+{
+  "required_effects": ["lightning"],
+  "required_modifiers": { "increased_area": 1, "duration": 1 },
+  "min_components": 3,
+  "behavior": [ { "type": "buildaspell:builtin_combo", "combo": "lightning_storm" } ]
+}
