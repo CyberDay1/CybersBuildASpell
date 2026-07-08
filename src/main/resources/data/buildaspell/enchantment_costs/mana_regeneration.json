@@ -1,0 +1,24 @@
+{
+  "costs": [
+    {"level": 1, "xp_levels": 1, "item": "minecraft:iron_ingot", "item_count": 1},
+    {"level": 2, "xp_levels": 2, "item": "minecraft:iron_ingot", "item_count": 2},
+    {"level": 3, "xp_levels": 3, "item": "minecraft:iron_ingot", "item_count": 3},
+    {"level": 4, "xp_levels": 4, "item": "minecraft:iron_ingot", "item_count": 4},
+    {"level": 5, "xp_levels": 5, "item": "minecraft:iron_ingot", "item_count": 5},
+    {"level": 6, "xp_levels": 6, "item": "minecraft:gold_ingot", "item_count": 2},
+    {"level": 7, "xp_levels": 7, "item": "minecraft:gold_ingot", "item_count": 4},
+    {"level": 8, "xp_levels": 8, "item": "minecraft:gold_ingot", "item_count": 6},
+    {"level": 9, "xp_levels": 9, "item": "minecraft:gold_ingot", "item_count": 8},
+    {"level": 10, "xp_levels": 10, "item": "minecraft:gold_ingot", "item_count": 10},
+    {"level": 11, "xp_levels": 11, "item": "minecraft:diamond", "item_count": 3},
+    {"level": 12, "xp_levels": 12, "item": "minecraft:diamond", "item_count": 6},
+    {"level": 13, "xp_levels": 13, "item": "minecraft:diamond", "item_count": 9},
+    {"level": 14, "xp_levels": 14, "item": "minecraft:diamond", "item_count": 12},
+    {"level": 15, "xp_levels": 15, "item": "minecraft:diamond", "item_count": 15},
+    {"level": 16, "xp_levels": 16, "item": "minecraft:netherite_ingot", "item_count": 1},
+    {"level": 17, "xp_levels": 17, "item": "minecraft:netherite_ingot", "item_count": 2},
+    {"level": 18, "xp_levels": 18, "item": "minecraft:netherite_ingot", "item_count": 3},
+    {"level": 19, "xp_levels": 19, "item": "minecraft:netherite_ingot", "item_count": 4},
+    {"level": 20, "xp_levels": 20, "item": "minecraft:netherite_ingot", "item_count": 5}
+  ]
+}

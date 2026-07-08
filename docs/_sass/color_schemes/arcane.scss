@@ -1,0 +1,45 @@
+// "Arcane" — custom just-the-docs color scheme for the Build a Spell docs
+// site. Tuned to match the in-game GuiTheme shared by the Spell Builder and
+// Arcane Altar: a teal-obsidian base (SCRIM/PANEL surfaces) with cyan-mint
+// headings and an amethyst signature accent (#ae74e8) for links, active nav,
+// and the primary button. The teal glow (#34e3c2) stays as a secondary
+// highlight. Palette hex values are lifted directly from GuiTheme.java so the
+// docs read as the same product as the mod's UI.
+//
+// Selected via `color_scheme: arcane` in _config.yml. just-the-docs imports
+// this file in place of the bundled light/dark variable sets, so every color
+// variable the theme relies on is defined explicitly below.
+
+// ── arcane palette (teal-obsidian base + amethyst accent) ───────────────
+$arcane-bg:            #0a181c; // page background (deep teal-obsidian, ~PANEL_BOT)
+$arcane-surface:       #12262d; // cards / code / tables (~SCRIM)
+$arcane-surface-alt:   #0e2026; // sidebar / search (PANEL_BG)
+$arcane-border:        #26464e; // BORDER
+$arcane-text:          #dcecec; // TEXT
+$arcane-heading:       #b8ecf0; // HEADER — cyan-mint
+$arcane-muted:         #9db5b8;
+$arcane-subtle:        #7c9498; // TEXT_DIM; clears WCAG-AA 4.5:1 (~5.9:1) on $arcane-bg
+$arcane-accent:        #ae74e8; // AMETHYST — links, active nav, primary btn
+$arcane-accent-2:      #34e3c2; // teal glow highlight
+
+// ── just-the-docs variable overrides ────────────────────────────────────
+$body-background-color:     $arcane-bg;
+$sidebar-color:             $arcane-surface-alt;
+$search-background-color:   $arcane-surface-alt;
+$table-background-color:    $arcane-surface;
+$code-background-color:     $arcane-surface;
+$feedback-color:            darken($arcane-surface-alt, 2%);
+
+$body-text-color:           $arcane-text;
+$body-heading-color:        $arcane-heading;
+$nav-child-link-color:      $arcane-muted;
+$search-result-preview-color: $arcane-subtle;
+
+$link-color:                $arcane-accent;
+$btn-primary-color:         $arcane-accent;
+$base-button-color:         #163038; // teal-obsidian surface (~PANEL_TOP)
+
+$border-color:              $arcane-border;
+
+// Syntax highlighting (rouge).
+$code-linenumber-color:     $arcane-subtle;

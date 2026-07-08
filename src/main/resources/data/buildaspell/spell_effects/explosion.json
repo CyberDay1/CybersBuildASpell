@@ -1,0 +1,5 @@
+{
+  "behavior": [
+    { "type": "buildaspell:builtin_effect", "effect": "explosion" }
+  ]
+}

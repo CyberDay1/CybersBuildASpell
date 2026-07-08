@@ -1,0 +1,380 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # Trigger on the primary version tag (e.g. v1.0.0). The workflow
+      # builds all three branches itself, so do NOT create branch-suffixed
+      # tags (e.g. v1.0.0-1.21.1) — they would re-trigger and publish
+      # duplicate jars to CurseForge/Modrinth.
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to release (e.g. v1.0.1)'
+        required: true
+      changelog:
+        description: 'Release changelog (markdown)'
+        required: true
+        default: 'No changelog provided.'
+      skip_26_1_publish:
+        description: 'Skip the 26.1 platform publish (for partial-release re-runs)'
+        required: false
+        type: boolean
+        default: false
+      skip_26_2_publish:
+        description: 'Skip the 26.2 platform publish (26.2 rides beta NeoForge — skip until stable)'
+        required: false
+        type: boolean
+        default: false
+
+# Branch layout (each builds a single jar at build/libs/ named
+# buildaspell-<version>-mc<minecraft_version>.jar):
+#   - 1.21.1 → MC 1.21.1 (Java 21)
+#   - master → MC 26.1.2, range [26.1.2,26.2) (Java 25)
+#   - 26.2   → MC 26.2,   range [26.2,26.3)   (Java 25), beta NeoForge
+#
+# Platform publishing is gated on the CURSEFORGE_PROJECT_ID /
+# MODRINTH_PROJECT_ID repo *variables* and the CURSEFORGE_TOKEN /
+# MODRINTH_TOKEN repo *secrets*. Until those are set the workflow still
+# builds the jars and cuts a GitHub Release, but skips the platform upload.
+
+jobs:
+  build-master:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: 'master'
+
+      - name: Set up JDKs (25 compile toolchain, 21 Gradle runtime)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          # Gradle 8.14 cannot RUN on Java 25, so 21 is listed last and
+          # becomes JAVA_HOME (the Gradle runtime). JDK 25 stays installed
+          # and is handed to the compile toolchain via fromEnv on the build.
+          java-version: |
+            25
+            21
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-master-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-master-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build -Porg.gradle.java.installations.fromEnv=JAVA_HOME_25_X64
+
+      - name: Find MC 26.1 JAR
+        id: jar-26-1
+        run: |
+          JAR=$(find build/libs -name 'buildaspell-*-mc26.1*.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error::Could not locate master jar under build/libs"
+            ls -la build/libs || true
+            exit 1
+          fi
+          echo "path=$JAR" >> $GITHUB_OUTPUT
+
+      - name: Upload MC 26.1 JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-26-1
+          path: ${{ steps.jar-26-1.outputs.path }}
+
+  build-1-21-1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 1.21.1 branch
+        uses: actions/checkout@v4
+        with:
+          ref: '1.21.1'
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-1211-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-1211-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Find MC 1.21.1 JAR
+        id: jar-1-21-1
+        run: |
+          JAR=$(find build/libs -name 'buildaspell-*-mc1.21.1.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error::Could not locate 1.21.1 jar under build/libs"
+            ls -la build/libs || true
+            exit 1
+          fi
+          echo "path=$JAR" >> $GITHUB_OUTPUT
+
+      - name: Upload MC 1.21.1 JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-1-21-1
+          path: ${{ steps.jar-1-21-1.outputs.path }}
+
+  build-26-2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 26.2 branch
+        uses: actions/checkout@v4
+        with:
+          ref: '26.2'
+
+      - name: Set up JDKs (25 compile toolchain, 21 Gradle runtime)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          # Gradle 8.14 cannot RUN on Java 25, so 21 is listed last and
+          # becomes JAVA_HOME (the Gradle runtime). JDK 25 stays installed
+          # and is handed to the compile toolchain via fromEnv on the build.
+          java-version: |
+            25
+            21
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-262-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-262-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build -Porg.gradle.java.installations.fromEnv=JAVA_HOME_25_X64
+
+      - name: Find MC 26.2 JAR
+        id: jar-26-2
+        run: |
+          JAR=$(find build/libs -name 'buildaspell-*-mc26.2.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)
+          if [ -z "$JAR" ]; then
+            echo "::error::Could not locate 26.2 jar under build/libs"
+            ls -la build/libs || true
+            exit 1
+          fi
+          echo "path=$JAR" >> $GITHUB_OUTPUT
+
+      - name: Upload MC 26.2 JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-26-2
+          path: ${{ steps.jar-26-2.outputs.path }}
+
+  release:
+    needs: [build-master, build-1-21-1, build-26-2]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # Full checkout so we have the annotated-tag metadata — the
+      # changelog is pulled from the tag's own message body below.
+      - name: Checkout (for tag metadata)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download MC 26.1 JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-26-1
+          path: jars/26.1
+
+      - name: Download MC 1.21.1 JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-1-21-1
+          path: jars/1.21.1
+
+      - name: Download MC 26.2 JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-26-2
+          path: jars/26.2
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RAW="${{ github.event.inputs.version }}"
+          else
+            RAW="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$RAW" >> $GITHUB_OUTPUT
+
+      # Extract the release changelog in priority order:
+      #   1. workflow_dispatch → the `changelog` input verbatim.
+      #   2. tag push on an annotated tag → the tag's message body,
+      #      stripping any trailing PGP signature block git may append.
+      #   3. tag push on a lightweight tag → the pointed-at commit message.
+      #   4. Last-resort fallback → "Release <tag>".
+      - name: Determine changelog
+        id: notes
+        env:
+          INPUT_CHANGELOG: ${{ github.event.inputs.changelog }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CHANGELOG="$INPUT_CHANGELOG"
+          else
+            git fetch --tags --force origin "refs/tags/$TAG:refs/tags/$TAG" 2>/dev/null || true
+
+            CHANGELOG=$(git tag -l --format='%(contents)' "$TAG" \
+              | sed '/-----BEGIN PGP SIGNATURE-----/,/-----END PGP SIGNATURE-----/d')
+
+            if [ -z "$(echo "$CHANGELOG" | tr -d '[:space:]')" ]; then
+              CHANGELOG=$(git log -1 --format=%B "$TAG" 2>/dev/null || true)
+            fi
+
+            if [ -z "$(echo "$CHANGELOG" | tr -d '[:space:]')" ]; then
+              CHANGELOG="Release $TAG"
+            fi
+          fi
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changelog<<$EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Identify JARs
+        id: jars
+        run: |
+          JAR_26_1=$(ls jars/26.1/buildaspell-*.jar | head -1)
+          JAR_1_21_1=$(ls jars/1.21.1/buildaspell-*.jar | head -1)
+          JAR_26_2=$(ls jars/26.2/buildaspell-*.jar | head -1)
+          echo "jar_26_1=$JAR_26_1" >> $GITHUB_OUTPUT
+          echo "jar_1_21_1=$JAR_1_21_1" >> $GITHUB_OUTPUT
+          echo "jar_26_2=$JAR_26_2" >> $GITHUB_OUTPUT
+          echo "name_26_1=$(basename $JAR_26_1)" >> $GITHUB_OUTPUT
+          echo "name_1_21_1=$(basename $JAR_1_21_1)" >> $GITHUB_OUTPUT
+          echo "name_26_2=$(basename $JAR_26_2)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Build a Spell ${{ steps.version.outputs.tag }}
+          body: |
+            ## Build a Spell ${{ steps.version.outputs.tag }}
+
+            Built for **Minecraft 26.1.2**, **26.2**, and **1.21.1** with **NeoForge**.
+
+            ${{ steps.notes.outputs.changelog }}
+
+            ### Installation
+            Download the JAR matching your Minecraft version and drop it into your `mods/` folder.
+            - `${{ steps.jars.outputs.name_26_1 }}` — for MC 26.1.2
+            - `${{ steps.jars.outputs.name_26_2 }}` — for MC 26.2
+            - `${{ steps.jars.outputs.name_1_21_1 }}` — for MC 1.21.1
+          files: |
+            ${{ steps.jars.outputs.jar_26_1 }}
+            ${{ steps.jars.outputs.jar_26_2 }}
+            ${{ steps.jars.outputs.jar_1_21_1 }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
+
+      # ----------------------------------------------------------------
+      # Platform publishing — CurseForge + Modrinth (via mc-publish).
+      # Each jar is one invocation that hits both platforms. Gated on the
+      # project-id vars so the workflow is a no-op for platforms until set.
+      # ----------------------------------------------------------------
+      - name: Publish MC 26.1.2 jar (CurseForge + Modrinth)
+        if: (vars.CURSEFORGE_PROJECT_ID != '' || vars.MODRINTH_PROJECT_ID != '') && inputs.skip_26_1_publish != true
+        continue-on-error: true
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: ${{ steps.jars.outputs.jar_26_1 }}
+          name: Build a Spell ${{ steps.version.outputs.tag }} (MC 26.1.2)
+          version: ${{ steps.version.outputs.tag }}+26.1.2
+          version-type: release
+          changelog: ${{ steps.notes.outputs.changelog }}
+          loaders: neoforge
+          game-versions: |
+            26.1.2
+          java: |
+            25
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: warn
+
+      - name: Publish MC 26.2 jar (CurseForge + Modrinth)
+        if: (vars.CURSEFORGE_PROJECT_ID != '' || vars.MODRINTH_PROJECT_ID != '') && inputs.skip_26_2_publish != true
+        continue-on-error: true
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: ${{ steps.jars.outputs.jar_26_2 }}
+          name: Build a Spell ${{ steps.version.outputs.tag }} (MC 26.2)
+          version: ${{ steps.version.outputs.tag }}+26.2
+          version-type: release
+          changelog: ${{ steps.notes.outputs.changelog }}
+          loaders: neoforge
+          game-versions: |
+            26.2
+          java: |
+            25
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: warn
+
+      - name: Publish MC 1.21.1 jar (CurseForge + Modrinth)
+        if: vars.CURSEFORGE_PROJECT_ID != '' || vars.MODRINTH_PROJECT_ID != ''
+        continue-on-error: true
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: ${{ steps.jars.outputs.jar_1_21_1 }}
+          name: Build a Spell ${{ steps.version.outputs.tag }} (MC 1.21.1)
+          version: ${{ steps.version.outputs.tag }}+1.21.1
+          version-type: release
+          changelog: ${{ steps.notes.outputs.changelog }}
+          loaders: neoforge
+          game-versions: |
+            1.21.1
+          java: |
+            21
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: warn

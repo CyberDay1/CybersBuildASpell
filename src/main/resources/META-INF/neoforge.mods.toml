@@ -1,0 +1,40 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="All Rights Reserved"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''${mod_description}'''
+logoFile="logo.png"
+
+[[dependencies.buildaspell]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.buildaspell]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.buildaspell]]
+modId="neoportals"
+type="optional"
+versionRange="[1.0.0,)"
+ordering="AFTER"
+side="BOTH"
+
+# Modonomicon dependency disabled on 26.2 until modonomicon-26.2-neoforge ships.
+# [[dependencies.buildaspell]]
+# modId="modonomicon"
+# type="required"
+# versionRange="[1.120.0,)"
+# ordering="AFTER"
+# side="BOTH"
