@@ -22,7 +22,7 @@ public class SanctuaryCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Sanctuary");
-        this.pageText("Mending magic, poured out over ground instead of a body and left to keep working, consecrates the earth itself.\\\n\\\nThe ground is hallowed, wrapping every player who stands within it (yourself included) in a protective ward of regeneration, resistance, and absorption.\\\n\\\nHostile mobs are never sheltered.\\\n\\\nIncreased Power strengthens the ward and Duration makes it last longer.");
+        this.pageText("Mending magic, poured out over ground instead of a body and left to keep working, consecrates the earth itself.\\\n\\\nThe ground is hallowed, wrapping every player who stands within it (yourself included) in a protective ward of regeneration, resistance, and absorption.\\\n\\\nHostile mobs are never sheltered.\\\n\\\nIncreased Power strengthens the ward, capping at level III of each blessing, and Duration makes it last longer.");
     }
 
     @Override

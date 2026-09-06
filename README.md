@@ -12,7 +12,7 @@ Spells in Build a Spell are assembled from three kinds of components:
 - **Effects** — what the spell does (damage, status effects, terrain manipulation, summons, utility, and more).
 - **Modifiers** — how the effects behave (more power, larger area, longer duration, chaining, piercing, bouncing, delays, and shape modifiers).
 
-Mana cost is the sum of every component, scaled by your Spell Power, with repeats priced higher each time: a second copy of an effect, or a second stack of a modifier on the same effect, costs more than the first. Double and Echo are the exception to the sum: each is charged a share of what the rest of the spell costs, because each one re-scales everything the spell does rather than adding a fixed amount to it. Certain combinations of components form **combos** that override their individual behavior to produce a single, more powerful spell — black holes, tornadoes, Void Rifts (dialable, linkable portals), summon swarms, and more.
+Mana cost is the sum of every component, discounted a little by a held wand, with repeats priced higher each time: a second copy of an effect, or a second stack of a modifier on the same effect, costs more than the first. Double and Echo are the exception to the sum: each is charged a share of what the rest of the spell costs, because each one re-scales everything the spell does rather than adding a fixed amount to it. Certain combinations of components form **combos** that override their individual behavior to produce a single, more powerful spell — black holes, tornadoes, Void Rifts (dialable, linkable portals), summon swarms, and more.
 
 ## Features
 
