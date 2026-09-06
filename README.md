@@ -8,7 +8,7 @@ An advanced, component-based spell creation system for NeoForge: combine deliver
 
 Spells in Build a Spell are assembled from three kinds of components:
 
-- **Delivery method** — how the spell is cast (self, line of sight, projectile, homing projectile, or a ground rune).
+- **Delivery method** — how the spell is cast (self, line of sight, projectile, homing projectile, touch, a timed ground rune, or a proximity trap).
 - **Effects** — what the spell does (damage, status effects, terrain manipulation, summons, utility, and more).
 - **Modifiers** — how the effects behave (more power, larger area, longer duration, chaining, piercing, bouncing, delays, and shape modifiers).
 
