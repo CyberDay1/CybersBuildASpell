@@ -45,9 +45,14 @@ public class ArcaneAltarBlockEntity extends BlockEntity implements Container, Me
     // Ingredient slots accept up to five vanilla stacks so a large enchant bill fits without
     // needing every slot filled. The input slot keeps its item's natural cap (see the menu).
     public static final int MAX_STACK_PER_SLOT = 320;
+    // Highest level the altar will sell. 255 is the ceiling an enchantment level is stored at, so
+    // this is "no cap" in practice. Not to be confused with the per-enchantment config caps: those
+    // limit how far a level still scales the bonus, not how high a level can be bought.
+    public static final int MAX_ENCHANT_LEVEL = 255;
     // Fixed material per ingredient slot (index 0..INGREDIENT_COUNT-1), matching the cumulative
     // bill's tiers in EnchantmentCostManager (iron 1-5 / gold 6-10 / diamond 11-15 / netherite
-    // 16-20). Each ingredient slot only accepts its own material, and shows a ghost of it.
+    // 16 and up). The netherite tier is open-ended, charging level-15 ingots a level, so the climb
+    // past 20 is gated by the bill rather than by a cap. Each slot accepts only its own material.
     public static final List<Item> INGREDIENT_MATERIALS =
             List.of(Items.IRON_INGOT, Items.GOLD_INGOT, Items.DIAMOND, Items.NETHERITE_INGOT);
     private final NonNullList<ItemStack> items = NonNullList.withSize(1 + INGREDIENT_COUNT, ItemStack.EMPTY);

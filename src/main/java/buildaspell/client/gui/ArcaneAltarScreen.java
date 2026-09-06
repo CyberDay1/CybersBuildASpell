@@ -228,7 +228,7 @@ public class ArcaneAltarScreen extends AbstractContainerScreen<ArcaneAltarMenu> 
     }
 
     private void adjustLevel(int delta) {
-        selectedLevel = Math.max(1, Math.min(20, selectedLevel + delta));
+        selectedLevel = Math.max(1, Math.min(ArcaneAltarBlockEntity.MAX_ENCHANT_LEVEL, selectedLevel + delta));
     }
 
     private void enchant() {

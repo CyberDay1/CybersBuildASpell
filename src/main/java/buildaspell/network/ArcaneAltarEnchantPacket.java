@@ -53,7 +53,8 @@ public record ArcaneAltarEnchantPacket(String enchantmentId, int level) implemen
             }
 
             // Validate level range
-            if (packet.level() < 1 || packet.level() > 20) return;
+            if (packet.level() < 1
+                    || packet.level() > buildaspell.block.entity.ArcaneAltarBlockEntity.MAX_ENCHANT_LEVEL) return;
 
             // Look up enchantment from registry
             ResourceLocation enchantId;
