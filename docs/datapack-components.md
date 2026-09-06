@@ -128,7 +128,7 @@ requires the planned primitive set.
 
 | Field | Required | Meaning |
 |---|---|---|
-| `required_effects` | yes | The exact set of effect ids the spell must contain |
+| `required_effects` | yes | The exact set of effect ids the spell must contain. Built-in effect ids only: a datapack-added effect cannot be a combo requirement |
 | `min_components` | yes | Minimum total component count to qualify |
 | `behavior` | yes | Primitives to run when the combo matches |
 | `required_modifiers` | no | Minimum count of each named modifier (default none) |

@@ -45,8 +45,8 @@ The **Arcane Altar** is the mod's enchanting station: it applies the Mana Pool, 
 
 - **Mana** is the resource spells consume. Your maximum mana and regeneration rate come from the `mana_pool` and `mana_regen` attributes.
 - **Spell Power** scales damage and effectiveness: most damage and healing in the mod scales directly off it.
-- Both grow through Build a Spell's own enchantments, which stack on top of the base attribute values with no hard cap by default (server admins can cap each enchantment in the config).
-- The enchantments only count from the gear that can use them: **Spell Power** is read from the item in your main hand (a weapon or a wand), while **Mana Pool** and **Mana Regeneration** are read from your worn armor. An off-hand item or a second held wand never adds to the total, so only one wand's Spell Power applies at a time.
+- Both grow through Build a Spell's own enchantments, which stack on top of the base attribute values with no level cap: the per-enchantment settings in the config decide how far a level keeps scaling the bonus, not how high a level may be bought.
+- The enchantments only count from the gear that can use them: **Spell Power** is read from the item in your main hand (a weapon or a wand), while **Mana Pool** and **Mana Regeneration** are read from your worn armor. An off-hand item never adds its enchantments to the total. The held-wand bonus is separate: it is read from either hand, with the better wand winning, so only one wand's bonus applies at a time.
 - Holding a wand also grants bonus Spell Power and a mana-cost discount: higher-tier wands give more of each.
 
 ## Cast your first spell
