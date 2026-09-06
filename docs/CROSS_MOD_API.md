@@ -21,7 +21,7 @@ ordering = "AFTER"
 side = "BOTH"
 ```
 
-For compile-time access, add the Cyber's Build A Spell jar to your `build.gradle`:
+For compile-time access, add the Build a Spell jar to your `build.gradle`:
 
 ```groovy
 dependencies {
@@ -36,14 +36,14 @@ All three attributes are registered on `EntityType.PLAYER` and live in the `buil
 | Registry ID | Default | Min | Max | Description |
 |---|---|---|---|---|
 | `buildaspell:mana_pool` | 100.0 | 0.0 | 10,000.0 | Maximum mana capacity |
-| `buildaspell:mana_regen` | 5.0 | 0.0 | 1,000.0 | Mana regenerated per tick cycle |
+| `buildaspell:mana_regen` | 5.0 | 0.0 | 1,000.0 | Mana regenerated per second |
 | `buildaspell:spell_power` | 10.0 | 0.0 | 1,000.0 | Spell damage and effectiveness scaling |
 
-Enchantment bonuses from Cyber's Build A Spell's own enchantments are applied **on top of** the attribute value, so attribute modifiers and enchantments stack naturally.
+Enchantment bonuses from Build a Spell's own enchantments are applied **on top of** the attribute value, so attribute modifiers and enchantments stack naturally.
 
 ## Accessing Attributes at Compile Time
 
-If you depend on Cyber's Build A Spell directly, you can reference the `DeferredHolder` fields:
+If you depend on Build a Spell directly, you can reference the `DeferredHolder` fields:
 
 ```java
 import buildaspell.registry.ModAttributes;
@@ -56,7 +56,7 @@ double power = player.getAttributeValue(ModAttributes.SPELL_POWER);
 
 ## Accessing Attributes by Registry ID (No Hard Dependency)
 
-If you want to keep Cyber's Build A Spell as an optional dependency, look up the attribute holders at runtime using the registry:
+If you want to keep Build a Spell as an optional dependency, look up the attribute holders at runtime using the registry:
 
 ```java
 import net.minecraft.core.Holder;
