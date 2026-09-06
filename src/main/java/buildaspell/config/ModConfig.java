@@ -29,10 +29,10 @@ public class ModConfig {
         public final ModConfigSpec.IntValue manaRegenMaxLevel;
         public final ModConfigSpec.IntValue spellPowerMaxLevel;
         public final ModConfigSpec.DoubleValue spellBaseRange;
+        public final ModConfigSpec.IntValue maxSpellComponents;
         public final ModConfigSpec.IntValue maxPortalsPerPlayer;
         public final ModConfigSpec.DoubleValue portalMinSize;
         public final ModConfigSpec.DoubleValue portalMaxSize;
-        public final ModConfigSpec.ConfigValue<List<? extends String>> conjureAllowedBlocks;
         public final ModConfigSpec.DoubleValue particleDensity;
         public final ModConfigSpec.BooleanValue lightningTransmutesBlocks;
         public final ModConfigSpec.IntValue essenceRequired;
@@ -65,16 +65,21 @@ public class ModConfig {
                     .defineInRange("spellPowerMaxLevel", 255, 0, 255);
             spellBaseRange = builder.comment("Base spell range/area radius before Increased Area modifiers")
                     .defineInRange("spellBaseRange", 5.0, 0.0, 256.0);
+            maxSpellComponents = builder.comment(
+                            "How large a single spell may get. A spell keeps two lists and this limit applies",
+                            "to each of them separately: the effect chain, which counts one entry per effect plus",
+                            "one per modifier attached to an effect, and the modifiers hung on the delivery itself.",
+                            "Mana is the practical limiter long before this is, so raising it mostly decides how",
+                            "elaborate a spell a well-equipped player can build. What to watch when raising it is",
+                            "the work a cast asks of the server: a Duration area re-runs every effect on every",
+                            "pulse, so a very long chain on a long-lived spell is the expensive shape.")
+                    .defineInRange("maxSpellComponents", 100, 1, 250);
             maxPortalsPerPlayer = builder.comment("Max portals per player (0 = unlimited)")
                     .defineInRange("maxPortalsPerPlayer", 0, 0, 1000);
             portalMinSize = builder.comment("Minimum portal width/height")
                     .defineInRange("portalMinSize", 1.0, 0.5, 10.0);
             portalMaxSize = builder.comment("Maximum portal width/height")
                     .defineInRange("portalMaxSize", 10.0, 1.0, 20.0);
-            conjureAllowedBlocks = builder.comment("Blocks allowed for Conjure effect")
-                    .defineList("conjureAllowedBlocks",
-                            List.of("stone", "cobblestone", "blackstone", "dirt", "grass_block"),
-                            obj -> obj instanceof String);
             particleDensity = builder.comment(
                             "Density of the big combo-spell particle effects (tornado, blizzard, black hole).",
                             "1.0 = full visuals (default look); lower values thin the particles to reduce client",
@@ -178,6 +183,7 @@ public class ModConfig {
 
     // ---- SERVER: modifiers -> buildaspell/modifiers.toml ----
     public static class Modifiers {
+        public final ModConfigSpec.IntValue configVersion;
         public final Map<SpellModifier, ModConfigSpec.BooleanValue> enabled = new EnumMap<>(SpellModifier.class);
         public final Map<SpellModifier, ModConfigSpec.DoubleValue> baseManaCost = new EnumMap<>(SpellModifier.class);
         public final Map<SpellModifier, ModConfigSpec.DoubleValue> costMultiplier = new EnumMap<>(SpellModifier.class);
@@ -186,6 +192,12 @@ public class ModConfig {
         public final Map<String, ModConfigSpec.IntValue> tuneI = new HashMap<>();
 
         public Modifiers(ModConfigSpec.Builder builder) {
+            configVersion = builder.comment(
+                            "Bookkeeping, not a setting: records which balance pass this file was last brought",
+                            "up to. Leave it alone. A config file is written once and then never touched again,",
+                            "so without this a rebalance would only ever reach brand-new worlds.")
+                    .defineInRange("configVersion", 0, 0, Integer.MAX_VALUE);
+
             builder.comment("Disabling a modifier hides it everywhere: builder palette, fill runes, and casting.");
             builder.push("modifiers");
             for (SpellModifier modifier : SpellModifier.values()) {
@@ -197,6 +209,10 @@ public class ModConfig {
                 Tuning.modifier(builder, modifier, tuneD, tuneI);
                 builder.pop();
             }
+            builder.pop();
+
+            builder.comment("Knobs that apply to every modifier rather than to one of them.").push("shared");
+            Tuning.sharedModifiers(builder, tuneD, tuneI);
             builder.pop();
         }
     }
@@ -314,9 +330,30 @@ public class ModConfig {
             WandTier.CARVED, 25.0,
             WandTier.RUNIC, 75.0);
 
+    /**
+     * The balance pass {@code modifiers.toml} is expected to be at. Its own file, so its own version.
+     */
+    private static final int MODIFIERS_CONFIG_VERSION = 2;
+
+    /**
+     * The pre-1.0.3 Fortunate Son cap. Retired because the escalating repeat cost turned out to be
+     * the real limit: a hard stop at 3 only meant a fourth stack was charged in full and did nothing.
+     */
+    private static final int LEGACY_FORTUNATE_SON_MAX_LEVEL = 3;
+
+    /**
+     * The pre-1.0.3 flat prices for Double and Echo. Retired because both re-scale the whole spell,
+     * so a fixed price was nearly free on a large spell and most of the bill on a small one. They
+     * charge a share of the total instead - see their {@code totalCostMultiplier}.
+     */
+    private static final Map<SpellModifier, Double> LEGACY_FLAT_COST = Map.of(
+            SpellModifier.DOUBLE, 50.0,
+            SpellModifier.ECHO, 40.0);
+
     public static void onConfigLoad(ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == EFFECTS_SPEC) migrateEffects();
         if (event.getConfig().getSpec() == WANDS_SPEC) migrateWands();
+        if (event.getConfig().getSpec() == MODIFIERS_SPEC) migrateModifiers();
     }
 
     /**
@@ -367,6 +404,41 @@ public class ModConfig {
 
         WANDS.configVersion.set(WANDS_CONFIG_VERSION);
         WANDS_SPEC.save();
+    }
+
+    /**
+     * Brings {@code modifiers.toml} up to {@link #MODIFIERS_CONFIG_VERSION}, on the same terms as
+     * {@link #migrateEffects()}: a value is only rewritten while it still holds the exact number the
+     * old release shipped, so a server owner who chose their own cap keeps it.
+     */
+    private static void migrateModifiers() {
+        if (MODIFIERS == null) return;
+        int from = MODIFIERS.configVersion.get();
+        if (from >= MODIFIERS_CONFIG_VERSION) return;
+
+        if (from < 1) {
+            ModConfigSpec.IntValue cap = MODIFIERS.tuneI.get("fortunate_son.maxLevel");
+            if (cap != null && cap.get() == LEGACY_FORTUNATE_SON_MAX_LEVEL) {
+                cap.set(cap.getDefault());
+                BuildASpell.LOGGER.info("Retired the pre-1.0.3 Fortunate Son cap: fortunate_son.maxLevel {} -> {}",
+                        LEGACY_FORTUNATE_SON_MAX_LEVEL, cap.getDefault());
+            }
+        }
+
+        if (from < 2) {
+            LEGACY_FLAT_COST.forEach((modifier, legacy) -> {
+                ModConfigSpec.DoubleValue cost = MODIFIERS.baseManaCost.get(modifier);
+                if (cost != null && cost.get().equals(legacy)) {
+                    cost.set(cost.getDefault());
+                    BuildASpell.LOGGER.info("Retired the pre-1.0.3 flat {} cost: baseManaCost {} -> {}"
+                                    + " (it now charges a share of the spell's total instead)",
+                            modifier.getSerializedName(), legacy, cost.getDefault());
+                }
+            });
+        }
+
+        MODIFIERS.configVersion.set(MODIFIERS_CONFIG_VERSION);
+        MODIFIERS_SPEC.save();
     }
 
     public static ModConfigSpec getGeneralSpec() { return GENERAL_SPEC; }
@@ -462,6 +534,12 @@ public class ModConfig {
         return v != null ? v.get() : fallback;
     }
 
+    public static double sharedModifierDouble(String name, double fallback) {
+        if (MODIFIERS == null) return fallback;
+        var v = MODIFIERS.tuneD.get("shared." + name);
+        return v != null ? v.get() : fallback;
+    }
+
     // Combo spells live in the Effects spec under the "combos" section, keyed "combo.<combo>.<name>".
     public static int comboInt(String combo, String name, int fallback) {
         if (EFFECTS == null) return fallback;
@@ -504,13 +582,16 @@ public class ModConfig {
         return GENERAL != null ? GENERAL.spellBaseRange.get() : 5.0;
     }
 
-    public static int getMaxPortalsPerPlayer() {
-        return GENERAL != null ? GENERAL.maxPortalsPerPlayer.get() : 0;
+    /**
+     * Cap on each of a spell's two lists — see {@code buildaspell.spell.Spell#maxComponents()},
+     * which is what callers should use. Falls back to the spec default before config load.
+     */
+    public static int getMaxSpellComponents() {
+        return GENERAL != null ? GENERAL.maxSpellComponents.get() : 100;
     }
 
-    public static List<? extends String> getConjureAllowedBlocks() {
-        return GENERAL != null ? GENERAL.conjureAllowedBlocks.get()
-                : List.of("stone", "cobblestone", "blackstone", "dirt", "grass_block");
+    public static int getMaxPortalsPerPlayer() {
+        return GENERAL != null ? GENERAL.maxPortalsPerPlayer.get() : 0;
     }
 
     public static double getPortalMinSize() {

@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class PowerScaleEntry extends EntryProvider {
@@ -20,19 +20,19 @@ public class PowerScaleEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Increased Power (20 mana)");
-        this.pageText("Increased Power amplifies the strength of all effects in the spell. Each stack multiplies the spell's potency further.\\\nThis is a stackable modifier — add multiple copies for greater amplification. It is the go-to modifier for maximizing damage or healing output.");
+        this.pageText("Increased Power amplifies the strength of all effects in the spell.\\\n\\\nEach stack multiplies the spell's potency further.\\\n\\\nThis is a stackable modifier — add multiple copies for greater amplification.\\\n\\\nIt is the go-to modifier for maximizing damage or healing output.");
 
         this.page("increased_area", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Increased Area (15 mana)");
-        this.pageText("Increased Area expands the area of effect for spells that affect a region. Each stack increases the radius further.\\\nThis is stackable and particularly powerful with effects like Explosion, Break, Conjure, Growth, and Reap. It is also a key component in many secret combos.");
+        this.pageText("Increased Area expands the area of effect for spells that affect a region.\\\n\\\nEach stack increases the radius further.\\\n\\\nThis is stackable and particularly powerful with effects like Explosion, Break, Conjure, Growth, and Reap.\\\n\\\nIt is also a key component in many secret combos.");
 
         this.page("fortunate_son", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Fortunate Son (25 mana)");
-        this.pageText("Fortunate Son enriches what your spells yield. On Break, it applies Fortune to the broken block, yielding more drops from ores and other fortune-affected blocks, and on Reap it adds bonus crop drops the same way.\\\nOn damage spells, it acts as Looting: creatures slain by the spell drop extra loot. Players are left alone — what they drop is their own belongings, not rolled loot.\\\nStackable: each stack raises the fortune and looting level, up to a cap of three. Best combined with Break and Increased Area for efficient mining.");
+        this.pageText("Fortunate Son enriches what your spells yield.\\\n\\\nOn Break, it applies Fortune to the broken block, yielding more drops from ores and other fortune-affected blocks.\\\n\\\nOn Reap, it adds bonus crop drops the same way.\\\n\\\nOn damage spells, it acts as Looting: creatures slain by the spell roll extra loot, exactly as a Looting weapon would. What a creature is guaranteed to drop is not multiplied, and players are left alone entirely — what they drop is their own belongings, not rolled loot.\\\n\\\nStackable: each stack raises the fortune and looting level, and what stops you is the price rather than a ceiling. Every repeat costs half as much again as the one before it, so a fourth Fortunate Son costs over three times what a single one does and the climb only steepens from there. Your mana runs out long before the limit does.\\\n\\\nBest combined with Break and Increased Area for efficient mining.");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class PowerScaleEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

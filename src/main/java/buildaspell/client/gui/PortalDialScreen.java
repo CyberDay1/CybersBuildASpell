@@ -97,18 +97,24 @@ public class PortalDialScreen extends Screen {
         ClientPacketDistributor.sendToServer(new ResizePortalPacket(sourcePortalUUID, portalWidth, portalHeight));
     }
 
+    /** See {@link SpellBuilderScreen#extractBlurredBackground} — this screen paints its own backdrop. */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Opaque themed backdrop drawn BEFORE super so it sits BEHIND the portal list + slider
-        // widgets — otherwise the list entries render unreadably over the bright in-world portal.
+        // widgets â otherwise the list entries render unreadably over the bright in-world portal.
         graphics.fill(0, 0, this.width, this.height, COLOR_SCRIM);
 
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-        graphics.centeredText(this.font, "Select Destination Portal", this.width / 2, 20, COLOR_HEADER);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Select Destination Portal", this.width / 2, 20, COLOR_HEADER);
         int portalCount = (int) discoveredPortals.stream()
                 .filter(p -> !p.getPortalUUID().equals(sourcePortalUUID)).count();
-        graphics.centeredText(this.font, "Discovered Portals: " + portalCount, this.width / 2, 35, COLOR_SUBTLE);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Discovered Portals: " + portalCount, this.width / 2, 35, COLOR_SUBTLE);
 
         // Render slider labels and values
         int sliderAreaTop = this.height - 75;

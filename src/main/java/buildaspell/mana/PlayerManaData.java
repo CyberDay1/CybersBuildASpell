@@ -13,6 +13,14 @@ public class PlayerManaData implements ValueIOSerializable {
 
     private float currentMana;
 
+    /**
+     * The figure this player's client was last sent. Server-side only, and deliberately absent from
+     * {@link #CODEC} and from the saved form: it describes the connection rather than the player, and
+     * starting at NaN means the first comparison always disagrees, so a freshly loaded player is
+     * always sent one packet.
+     */
+    private transient float lastSyncedMana = Float.NaN;
+
     public PlayerManaData() {
         this.currentMana = ManaConstants.DEFAULT_MAX_MANA;
     }
@@ -32,6 +40,12 @@ public class PlayerManaData implements ValueIOSerializable {
     }
 
     public float getCurrentMana() { return currentMana; }
+
+    public float getLastSyncedMana() { return lastSyncedMana; }
+
+    public void setLastSyncedMana(float mana) {
+        this.lastSyncedMana = mana;
+    }
 
     public void setCurrentMana(float mana) {
         this.currentMana = Math.max(0, mana);

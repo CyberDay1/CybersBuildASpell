@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class StatusOffenseEntry extends EntryProvider {
@@ -20,31 +20,31 @@ public class StatusOffenseEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Poison & Wither");
-        this.pageText("Poison (30 mana) applies the Poison effect, dealing damage over time but never killing the target. Wither (40 mana) applies the Wither effect, which deals damage over time and CAN kill.\\\nBoth durations scale with the Duration modifier.");
+        this.pageText("Poison (30 mana) applies the Poison effect, dealing damage over time but never killing the target.\\\n\\\nWither (40 mana) applies the Wither effect, which deals damage over time and CAN kill.\\\n\\\nBoth durations scale with the Prolonged modifier.");
 
         this.page("blind_ignite", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Blind & Ignite");
-        this.pageText("Blind (25 mana) applies the Blindness effect, severely limiting the target's vision range. Ignite (15 mana) sets the target on fire, dealing continuous fire damage.\\\nIgnite is one of the cheapest offensive effects and pairs well with the Duration modifier.");
+        this.pageText("Blind (25 mana) applies the Blindness effect, severely limiting the target's vision range.\\\n\\\nIgnite (15 mana) sets the target on fire, dealing continuous fire damage.\\\n\\\nIgnite is one of the cheapest offensive effects and pairs well with the Prolonged modifier.");
 
         this.page("freeze", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Freeze");
-        this.pageText("Freeze (20 mana) applies a freezing effect to the target, slowing their movement and dealing periodic frost damage similar to being inside powdered snow. It is particularly effective against Blaze and Strider mobs which take extra freeze damage.");
+        this.pageText("Freeze (20 mana) applies a freezing effect to the target, slowing their movement and dealing periodic frost damage similar to being inside powdered snow.\\\n\\\nIt is particularly effective against Blaze and Strider mobs which take extra freeze damage.");
 
         this.page("slow_weaken", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Slow & Weaken");
-        this.pageText("Slow (20 mana) applies Slowness, dragging the target's movement to a crawl. Weaken (25 mana) applies Weakness, sapping the damage of their melee attacks.\\\nBoth deepen with Increased Power and last longer with Prolonged, and both are stopped cold by Nullify-warded foes.");
+        this.pageText("Slow (20 mana) applies Slowness, dragging the target's movement to a crawl.\\\n\\\nWeaken (25 mana) applies Weakness, sapping the damage of their melee attacks.\\\n\\\nBoth deepen with Increased Power and last longer with Prolonged.\\\n\\\nNullify does not stop them: status effects are not damage.");
 
         this.page("root", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Root");
-        this.pageText("Root (30 mana) locks the target in place, pinning their feet so they can neither walk nor jump for a short time.\\\nIt is the ultimate setup tool: root a fleeing enemy, then follow up with a slower, heavier spell. Duration scales with Prolonged.");
+        this.pageText("Root (30 mana) locks the target in place, pinning their feet so they can neither walk nor jump for a short time.\\\n\\\nIt is the ultimate setup tool: root a fleeing enemy, then follow up with a slower, heavier spell.\\\n\\\nDuration scales with Prolonged.");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class StatusOffenseEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

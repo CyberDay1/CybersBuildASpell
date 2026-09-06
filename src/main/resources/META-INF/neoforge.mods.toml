@@ -31,10 +31,13 @@ versionRange="[1.0.0,)"
 ordering="AFTER"
 side="BOTH"
 
-# Modonomicon dependency disabled on 26.2 until modonomicon-26.2-neoforge ships.
-# [[dependencies.buildaspell]]
-# modId="modonomicon"
-# type="required"
-# versionRange="[1.120.0,)"
-# ordering="AFTER"
-# side="BOTH"
+# Optional: only used to render the in-game guidebook. All Modonomicon usage is
+# datagen-only, so the mod runs fine without it (you just get no guidebook).
+# The 26.2 artifact line restarted at 2.x, hence the floor here and not the 1.120.0
+# the 1.21.1 and 26.1 branches carry.
+[[dependencies.buildaspell]]
+modId="modonomicon"
+type="optional"
+versionRange="[2.2.0,)"
+ordering="AFTER"
+side="BOTH"

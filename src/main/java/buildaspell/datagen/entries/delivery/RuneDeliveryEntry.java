@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class RuneDeliveryEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class RuneDeliveryEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Rune Delivery (20 mana)");
-        this.pageText("The Rune delivery method places a glowing spell rune on the ground at the targeted location. The rune persists for a short duration and triggers its spell effects when an entity steps on or near it.");
+        this.pageText("The Rune delivery method inscribes a glowing spell rune on the ground at your feet.\\\n\\\nThe rune charges for about a second, then releases its spell effects on its own.\\\n\\\nEach Duration modifier extends the charge time, letting you tune when it goes off.");
 
         this.page("tactics", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Tactical Usage");
-        this.pageText("Runes are excellent for setting traps and area denial. Place damage or status effect runes at chokepoints, or use healing runes to create safe zones.\\\nThe rune activates on contact and then dissipates.");
+        this.pageText("Runes are timed charges: drop one and move, and it detonates where you stood.\\\n\\\nUse damage or status runes to cover a retreat, or healing runes to bless ground you are about to fight on.\\\n\\\nFor a rune that waits for an enemy instead of a timer, see the Trap delivery.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class RuneDeliveryEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

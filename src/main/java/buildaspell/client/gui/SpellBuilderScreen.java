@@ -117,6 +117,8 @@ public class SpellBuilderScreen extends Screen {
     private static final int PAL_ROW_H = 20;   // palette component row (18 icon + gap)
     private static final int PAL_HDR_H = 13;   // palette section-header row
     private static final int PAL_PAD_R = 9;    // right padding reserved for the scrollbar
+    private static final int BUILD_PAD_B = 9;  // bottom strip of the build pane reserved for its scrollbar
+    private static final int BUILD_ORIGIN_X = 14;   // left inset of the build chain within its pane
 
     // ── Layout (computed in init) ──────────────────────────────────────
     private int palX, palY, palW, palH;
@@ -141,10 +143,18 @@ public class SpellBuilderScreen extends Screen {
 
     private int paletteScroll = 0;
     private int buildScrollY = 0;
+    /**
+     * Horizontal scroll of the build chain. A long modifier run extends its row to the right without
+     * wrapping, so past a handful of chips the row leaves the pane entirely; this is what brings it
+     * back.
+     */
+    private int buildScrollX = 0;
 
     // drag state
     private Object dragging = null;
     private boolean dragFromBuild = false;
+    /** True while the build pane's horizontal scrollbar thumb is being dragged. */
+    private boolean draggingBuildBar = false;
     private double pressX, pressY;
     private SlotBox pressedBuildBox = null;   // build-slot press pending click(select)-vs-drag(pickup) resolution
 
@@ -268,6 +278,7 @@ public class SpellBuilderScreen extends Screen {
         // re-init, so put the player's scroll position back. Render clamps it if the pane got shorter.
         paletteScroll = carriedPaletteScroll;
         buildScrollY = Math.max(0, Math.min(maxBuildScroll(), buildScrollY));
+        buildScrollX = Math.max(0, Math.min(maxBuildScrollX(), buildScrollX));
 
         // bottom action bar
         int by = this.height - 26;
@@ -313,7 +324,7 @@ public class SpellBuilderScreen extends Screen {
     // ── Build-chain geometry ───────────────────────────────────────────
     private List<SlotBox> buildLayout() {
         List<SlotBox> boxes = new ArrayList<>();
-        int colX = buildX + 14;
+        int colX = buildX + BUILD_ORIGIN_X - buildScrollX;
         int top = buildY + 24 - buildScrollY;
 
         boxes.add(new SlotBox(SlotKind.DELIVERY, -1, -1, colX, top, SLOT));
@@ -348,10 +359,59 @@ public class SpellBuilderScreen extends Screen {
 
     private int maxBuildScroll() {
         int contentH = (effectGroups.size() + 2) * ROW_H + 34;
-        return Math.max(0, contentH - buildH);
+        return Math.max(0, contentH - (buildH - BUILD_PAD_B));
+    }
+
+    /**
+     * Right edge, in build-pane coordinates, of a row carrying {@code modifiers} chips: the effect (or
+     * delivery) slot, the gap, the chips themselves, and the trailing add-slot. Mirrors the arithmetic
+     * in {@link #buildLayout()}, which is what makes the scroll range agree with what is drawn.
+     */
+    private static int rowContentRight(int modifiers) {
+        return BUILD_ORIGIN_X + SLOT + 16 + modifiers * (SLOT + 8) + SLOT;
+    }
+
+    /** How wide the build chain is at its widest row. */
+    private int buildContentW() {
+        int widest = deliveryModifiers.size();
+        for (EffectGroup g : effectGroups) widest = Math.max(widest, g.modifiers.size());
+        return rowContentRight(widest);
+    }
+
+    /** The visible width of the build pane's interior, which the horizontal scroll is measured against. */
+    private int buildViewW() {
+        return buildW - 8;
+    }
+
+    private int maxBuildScrollX() {
+        return Math.max(0, buildContentW() + 4 - buildViewW());
+    }
+
+    /**
+     * Scrolls the chain just far enough right to bring the end of a row into view, and no further.
+     * Called when a chip is appended: the new chip lands at the end of its row, and on a row already
+     * wider than the pane it would otherwise arrive somewhere the player cannot see, which reads as
+     * the click having done nothing at all.
+     */
+    private void revealRowEnd(int modifiers) {
+        int overhang = rowContentRight(modifiers) + 4 - buildViewW();
+        if (overhang > buildScrollX) buildScrollX = overhang;
+        buildScrollX = Math.max(0, Math.min(maxBuildScrollX(), buildScrollX));
     }
 
     // ── Render ─────────────────────────────────────────────────────────
+    /**
+     * Skip vanilla's blur pass so the builder stays crisp regardless of the
+     * "Menu Background Blur" accessibility setting. Vanilla's version calls
+     * {@code blurBeforeThisStratum()}, which blurs everything drawn beneath the
+     * screen; the opaque scrim painted at the top of {@link #extractRenderState}
+     * covers all of it anyway, so the pass is pure cost.
+     */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op: our opaque SCRIM covers the menu background anyway
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         g.fill(0, 0, width, height, SCRIM);
@@ -379,19 +439,21 @@ public class SpellBuilderScreen extends Screen {
         if (dragging == null) {
             boolean deliveryWarn = false;
             Object hovered = paletteComponentAt(mouseX, mouseY);
+            SlotBox hoveredBox = null;
             if (hovered != null) {
                 deliveryWarn = isPaletteEntryDisabled(hovered);
             } else {
                 SlotBox box = slotBoxAt(mouseX, mouseY);
                 if (box != null) {
                     hovered = componentInBox(box);
+                    if (hovered != null) hoveredBox = box;
                     // A placed delivery-modifier chip that's inert under the current delivery.
                     if (box.kind() == SlotKind.DELIVERY_MODIFIER && hovered instanceof SpellModifier m) {
                         deliveryWarn = !ModifierApplicability.isDeliveryModifierUseful(m, selectedDelivery);
                     }
                 }
             }
-            if (hovered != null) renderComponentTooltip(g, hovered, mouseX, mouseY, deliveryWarn);
+            if (hovered != null) renderComponentTooltip(g, hovered, hoveredBox, mouseX, mouseY, deliveryWarn);
         }
     }
 
@@ -512,11 +574,15 @@ public class SpellBuilderScreen extends Screen {
             g.text(font, c, buildX + buildW - font.width(c) - 8, buildY + 4, ACCENT_GOLD, false);
         }
 
-        g.enableScissor(buildX + 1, buildY + 1, buildX + buildW - 1, buildY + buildH - 1);
+        int maxScrollX = maxBuildScrollX();
+        if (buildScrollX > maxScrollX) buildScrollX = maxScrollX;
+        if (buildScrollX < 0) buildScrollX = 0;
+
+        g.enableScissor(buildX + 1, buildY + 1, buildX + buildW - 1, buildY + buildH - BUILD_PAD_B);
         List<SlotBox> boxes = buildLayout();
 
         // connector lines (delivery → effects → add-effect, down the spine)
-        int spineX = buildX + 14 + SLOT / 2;
+        int spineX = buildX + BUILD_ORIGIN_X - buildScrollX + SLOT / 2;
         SlotBox prev = null;
         for (SlotBox b : boxes) {
             if (b.kind() == SlotKind.EFFECT || b.kind() == SlotKind.ADD_EFFECT) {
@@ -607,6 +673,21 @@ public class SpellBuilderScreen extends Screen {
             }
         }
         g.disableScissor();
+
+        // horizontal scrollbar: same thin track + accent thumb as the palette's, laid on its side
+        if (maxScrollX > 0) {
+            int viewW = buildViewW();
+            int trackX = buildX + 4;
+            int barY = buildY + buildH - 5;
+            g.fill(trackX, barY, trackX + viewW, barY + 3, 0x30000000);
+            int thumbW = buildThumbW(viewW);
+            int thumbX = trackX + (int) ((float) buildScrollX / maxScrollX * (viewW - thumbW));
+            g.fill(thumbX, barY, thumbX + thumbW, barY + 3, ACCENT_GOLD);
+        }
+    }
+
+    private int buildThumbW(int viewW) {
+        return Math.max(18, Math.min(viewW, (int) ((float) viewW / buildContentW() * viewW)));
     }
 
     /** Subtle arcane shimmer: a few accent motes that rise and fade within a filled slot. */
@@ -676,13 +757,20 @@ public class SpellBuilderScreen extends Screen {
         g.fill(cx - 1, cy - 4, cx + 2, cy + 5, dim);
     }
 
-    private void renderComponentTooltip(GuiGraphicsExtractor g, Object comp, double mouseX, double mouseY, boolean deliveryWarn) {
+    /**
+     * @param box the chip's place in the build chain, or null when this is a palette entry that
+     *            hasn't been placed yet — which is what decides whether the tooltip quotes what the
+     *            component currently charges or what adding it would charge.
+     */
+    private void renderComponentTooltip(GuiGraphicsExtractor g, Object comp, SlotBox box,
+                                        double mouseX, double mouseY, boolean deliveryWarn) {
         List<Component> lines = new ArrayList<>();
         lines.add(componentName(comp).copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD));
         lines.add(componentType(comp).copy().withStyle(ChatFormatting.GRAY));
         lines.add(componentDesc(comp).copy().withStyle(ChatFormatting.DARK_GRAY));
         lines.add(Component.translatable("gui.buildaspell.spell_builder.mana_format",
-                String.format("%.1f", componentCost(comp))).withStyle(ChatFormatting.YELLOW));
+                String.format("%.1f", box != null ? placedCost(box) : paletteAddCost(comp)))
+                .withStyle(ChatFormatting.YELLOW));
 
         if (deliveryWarn) {
             lines.add(Component.translatable("gui.buildaspell.spell_builder.needs_projectile")
@@ -774,6 +862,15 @@ public class SpellBuilderScreen extends Screen {
         int button = event.button();
 
         if (button == 0) {
+            // The bar itself is three pixels tall, so the whole reserved strip along the bottom of the
+            // pane grabs it. Nothing else is drawn there, and the build chain is scissored above it.
+            if (maxBuildScrollX() > 0 && mx >= buildX + 4 && mx < buildX + 4 + buildViewW()
+                    && my >= buildY + buildH - BUILD_PAD_B && my < buildY + buildH) {
+                draggingBuildBar = true;
+                dragBuildBarTo(mx);
+                return true;
+            }
+
             int row = slotPaneRowAt(mx, my);
             if (row >= 0) { selectAndLoadSlot(row); return true; }
 
@@ -808,8 +905,24 @@ public class SpellBuilderScreen extends Screen {
         return false;
     }
 
+    /**
+     * Puts the thumb's centre under the cursor and converts that back into a scroll offset, so grabbing
+     * anywhere along the track jumps there rather than only nudging from wherever the thumb already was.
+     */
+    private void dragBuildBarTo(double mx) {
+        int maxScrollX = maxBuildScrollX();
+        if (maxScrollX <= 0) return;
+        int viewW = buildViewW();
+        int thumbW = buildThumbW(viewW);
+        int travel = viewW - thumbW;
+        if (travel <= 0) { buildScrollX = 0; return; }
+        double thumbX = mx - (buildX + 4) - thumbW / 2.0;
+        buildScrollX = (int) Math.round(Math.max(0, Math.min(travel, thumbX)) / travel * maxScrollX);
+    }
+
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (event.button() == 0 && draggingBuildBar) { dragBuildBarTo(event.x()); return true; }
         // Promote a deferred build-slot press into a real pickup once the cursor moves enough.
         if (event.button() == 0 && pressedBuildBox != null && dragging == null
                 && Math.hypot(event.x() - pressX, event.y() - pressY) >= 4) {
@@ -827,6 +940,7 @@ public class SpellBuilderScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && draggingBuildBar) { draggingBuildBar = false; return true; }
         // A deferred build-slot press that never became a drag = a plain click → select.
         if (event.button() == 0 && pressedBuildBox != null && dragging == null) {
             SlotBox box = pressedBuildBox;
@@ -870,8 +984,9 @@ public class SpellBuilderScreen extends Screen {
             }
             case ADD_DELIVERY_MODIFIER -> {
                 if (drag instanceof SpellModifier m) {
-                    if (warnIfUselessDelivery(m)) return;
+                    if (warnIfUselessDelivery(m) || warnIfDeliveryFull()) return;
                     deliveryModifiers.add(m);
+                    revealRowEnd(deliveryModifiers.size());
                 }
             }
             case EFFECT -> {
@@ -880,6 +995,7 @@ public class SpellBuilderScreen extends Screen {
                 else if (drag instanceof DatapackEffect de) { g.dataEffect = de; g.effect = null; }
             }
             case ADD_EFFECT -> {
+                if (warnIfChainFull()) return;
                 if (drag instanceof SpellEffect e) { effectGroups.add(new EffectGroup(e)); selectedEffectIndex = effectGroups.size() - 1; }
                 else if (drag instanceof DatapackEffect de) { effectGroups.add(new EffectGroup(de)); selectedEffectIndex = effectGroups.size() - 1; }
             }
@@ -893,11 +1009,42 @@ public class SpellBuilderScreen extends Screen {
             case ADD_MODIFIER -> {
                 if (drag instanceof SpellModifier m) {
                     EffectGroup g = effectGroups.get(target.effectIndex());
-                    if (warnIfUseless(m, g)) return;
+                    if (warnIfUseless(m, g) || warnIfChainFull()) return;
                     g.modifiers.add(m);
+                    revealRowEnd(g.modifiers.size());
                 }
             }
         }
+    }
+
+    /**
+     * How many entries the effect chain occupies once saved: one per effect plus one per effect-bound
+     * modifier. {@link Spell#maxComponents()} bounds exactly this, so the builder counts it the same way.
+     */
+    private int chainSlotCount() {
+        int n = 0;
+        for (EffectGroup g : effectGroups) n += 1 + g.modifiers.size();
+        return n;
+    }
+
+    /**
+     * Refuses a chip the effect chain has no room for, and says so. The builder used to accept it and
+     * draw it, and the save then dropped it without a word, which read as the spell losing pieces on
+     * its own.
+     */
+    private boolean warnIfChainFull() {
+        if (chainSlotCount() < Spell.maxComponents()) return false;
+        feedback(Component.translatable("gui.buildaspell.spell_builder.chain_full", Spell.maxComponents()),
+                ChatFormatting.RED);
+        return true;
+    }
+
+    /** The same guard for the delivery row, which carries its own budget. */
+    private boolean warnIfDeliveryFull() {
+        if (deliveryModifiers.size() < Spell.maxComponents()) return false;
+        feedback(Component.translatable("gui.buildaspell.spell_builder.delivery_full", Spell.maxComponents()),
+                ChatFormatting.RED);
+        return true;
     }
 
     private void removeFromBuild(SlotBox box) {
@@ -917,19 +1064,27 @@ public class SpellBuilderScreen extends Screen {
 
     private void addComponentToSpell(Object comp) {
         if (comp instanceof DeliveryMethod d) selectedDelivery = d;
-        else if (comp instanceof SpellEffect e) { effectGroups.add(new EffectGroup(e)); selectedEffectIndex = effectGroups.size() - 1; }
-        else if (comp instanceof DatapackEffect de) { effectGroups.add(new EffectGroup(de)); selectedEffectIndex = effectGroups.size() - 1; }
+        else if (comp instanceof SpellEffect e) {
+            if (warnIfChainFull()) return;
+            effectGroups.add(new EffectGroup(e)); selectedEffectIndex = effectGroups.size() - 1;
+        }
+        else if (comp instanceof DatapackEffect de) {
+            if (warnIfChainFull()) return;
+            effectGroups.add(new EffectGroup(de)); selectedEffectIndex = effectGroups.size() - 1;
+        }
         else if (comp instanceof SpellModifier m && ModifierApplicability.isDeliveryLevel(m)) {
             // Roster modifiers attach to the Delivery zone regardless of any selected effect.
-            if (warnIfUselessDelivery(m)) return;
+            if (warnIfUselessDelivery(m) || warnIfDeliveryFull()) return;
             deliveryModifiers.add(m);
+            revealRowEnd(deliveryModifiers.size());
         }
         else if (comp instanceof SpellModifier m && !effectGroups.isEmpty()) {
             int target = (selectedEffectIndex >= 0 && selectedEffectIndex < effectGroups.size())
                     ? selectedEffectIndex : effectGroups.size() - 1;
             EffectGroup g = effectGroups.get(target);
-            if (warnIfUseless(m, g)) return;
+            if (warnIfUseless(m, g) || warnIfChainFull()) return;
             g.modifiers.add(m);
+            revealRowEnd(g.modifiers.size());
         }
     }
 
@@ -978,8 +1133,15 @@ public class SpellBuilderScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (mouseX >= buildX && mouseX < buildX + buildW && mouseY >= buildY && mouseY < buildY + buildH) {
-            int max = maxBuildScroll();
-            buildScrollY = Math.max(0, Math.min(max, buildScrollY - (int) (scrollY * 16)));
+            // A tilt wheel scrolls the chain sideways; so does holding shift, for the mice that have
+            // no tilt wheel, which is most of them.
+            double sideways = scrollX != 0 ? scrollX
+                    : (minecraft != null && minecraft.hasShiftDown() ? scrollY : 0);
+            if (sideways != 0) {
+                buildScrollX = Math.max(0, Math.min(maxBuildScrollX(), buildScrollX - (int) (sideways * 16)));
+            } else {
+                buildScrollY = Math.max(0, Math.min(maxBuildScroll(), buildScrollY - (int) (scrollY * 16)));
+            }
             return true;
         }
         if (mouseX >= palX && mouseX < palX + palW && mouseY >= palY && mouseY < palY + palH) {
@@ -1062,12 +1224,73 @@ public class SpellBuilderScreen extends Screen {
         return SLOT_BORDER;
     }
 
-    private float componentCost(Object c) {
-        if (c instanceof DeliveryMethod d) return d.getBaseCost();
-        if (c instanceof SpellEffect e) return e.getBaseCost();
-        if (c instanceof DatapackEffect de) return de.display().cost().orElse(0.0).floatValue();
-        if (c instanceof SpellModifier m) return m.getBaseCost();
-        return 0;
+    /**
+     * What a chip already in the build chain is charging, read out of the spell's own cost
+     * breakdown. It is not the component's listed price: a second copy of an effect, or a second
+     * stack of a modifier on the same effect, costs more than the first, and the server config can
+     * scale any of it. Taking the number from the breakdown means the tooltip cannot drift from
+     * what is actually being charged.
+     */
+    private float placedCost(SlotBox box) {
+        Spell.CostBreakdown costs = buildSpellFromSlots().getCostBreakdown();
+        return switch (box.kind()) {
+            case DELIVERY -> costs.delivery();
+            case DELIVERY_MODIFIER -> costAt(costs.deliveryModifiers(), box.modIndex());
+            case EFFECT -> costAt(costs.components(), componentIndex(box.effectIndex(), -1));
+            case MODIFIER -> costAt(costs.components(), componentIndex(box.effectIndex(), box.modIndex()));
+            default -> 0f;
+        };
+    }
+
+    /**
+     * What dropping a palette entry in would add to the total — the difference it makes, not the
+     * price of a first copy, since the escalation means those diverge as soon as you repeat
+     * anything. Priced where {@link #addComponentToSpell} would actually put it.
+     */
+    private float paletteAddCost(Object c) {
+        Spell with = spellWithAdded(c);
+        if (with != null) {
+            return with.getManaCost() - buildSpellFromSlots().getManaCost();
+        }
+        // A modifier with no effect to attach to yet: quote what the first stack of it costs.
+        return c instanceof SpellModifier m ? ModConfig.getModifierCost(m, 1) : 0f;
+    }
+
+    /**
+     * The spell as it would be with {@code added} dropped in, or null if there is nowhere to put it.
+     * Works on copies, so hovering the palette never disturbs the build in progress.
+     */
+    private Spell spellWithAdded(Object added) {
+        DeliveryMethod delivery = selectedDelivery;
+        List<SpellModifier> deliveryMods = new ArrayList<>(deliveryModifiers);
+        List<EffectGroup> groups = new ArrayList<>();
+        for (EffectGroup g : effectGroups) groups.add(new EffectGroup(g));
+
+        if (added instanceof DeliveryMethod d) delivery = d;
+        else if (added instanceof SpellEffect e) groups.add(new EffectGroup(e));
+        else if (added instanceof DatapackEffect de) groups.add(new EffectGroup(de));
+        else if (added instanceof SpellModifier m && ModifierApplicability.isDeliveryLevel(m)) deliveryMods.add(m);
+        else if (added instanceof SpellModifier m && !groups.isEmpty()) {
+            int target = (selectedEffectIndex >= 0 && selectedEffectIndex < groups.size())
+                    ? selectedEffectIndex : groups.size() - 1;
+            groups.get(target).modifiers.add(m);
+        } else {
+            return null;
+        }
+        return buildSpell(delivery, deliveryMods, groups);
+    }
+
+    /** Where a build-area chip lands in the component list {@link #buildSpell} emits. */
+    private int componentIndex(int effectIndex, int modIndex) {
+        int index = 0;
+        for (int i = 0; i < effectIndex && i < effectGroups.size(); i++) {
+            index += 1 + effectGroups.get(i).modifiers.size();
+        }
+        return modIndex < 0 ? index : index + 1 + modIndex;
+    }
+
+    private static float costAt(float[] costs, int index) {
+        return index >= 0 && index < costs.length ? costs[index] : 0f;
     }
 
     private static String prettyName(String id) {
@@ -1110,14 +1333,19 @@ public class SpellBuilderScreen extends Screen {
     }
 
     private Spell buildSpellFromSlots() {
+        return buildSpell(selectedDelivery, deliveryModifiers, effectGroups);
+    }
+
+    /** Assembles a spell from a build-area layout — the live one, or a hypothetical one being priced. */
+    private Spell buildSpell(DeliveryMethod delivery, List<SpellModifier> deliveryMods, List<EffectGroup> groups) {
         Spell spell = new Spell();
-        spell.setDelivery(selectedDelivery);
-        for (EffectGroup g : effectGroups) {
+        spell.setDelivery(delivery);
+        for (EffectGroup g : groups) {
             if (g.effect != null) spell.addComponent(new SpellComponent.Effect(g.effect));
             else if (g.dataEffect != null) spell.addComponent(new SpellComponent.DataEffect(g.dataEffect.id()));
             for (SpellModifier m : g.modifiers) spell.addComponent(new SpellComponent.Modifier(m));
         }
-        for (SpellModifier m : deliveryModifiers) spell.addDeliveryModifier(m);
+        for (SpellModifier m : deliveryMods) spell.addDeliveryModifier(m);
         spell.setVisual(selectedVisual);
         return spell;
     }

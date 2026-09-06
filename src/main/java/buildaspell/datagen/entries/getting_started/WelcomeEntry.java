@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class WelcomeEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class WelcomeEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Welcome to Build-A-Spell");
-        this.pageText("The Arcane Codex is your guide to mastering the art of spell creation.\\\nWithin these pages you will find everything you need to craft powerful spells, from basic rune creation to advanced combo techniques.");
+        this.pageText("The Arcane Codex is your guide to mastering the art of spell creation.\\\n\\\nWithin these pages you will find everything you need to craft powerful spells, from basic rune creation to advanced combo techniques.");
 
         this.page("overview", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("How to Use This Book");
-        this.pageText("Navigate the node graph by clicking on category icons at the top. Each node represents a topic: click it to read its pages.\\\nSome entries are hidden until you have read their prerequisites. Explore freely and discover the secrets of magic.");
+        this.pageText("Navigate the node graph by clicking on category icons at the top.\\\n\\\nEach node represents a topic: click it to read its pages.\\\n\\\nSome entries are hidden until you have read their prerequisites.\\\n\\\nExplore freely and discover the secrets of magic.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class WelcomeEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

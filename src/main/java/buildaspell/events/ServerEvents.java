@@ -77,6 +77,7 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         SpellLootingTracker.tick();
+        SpellLootingEvents.closeLootingWindow();
     }
 
     @SubscribeEvent
@@ -197,6 +198,29 @@ public class ServerEvents {
         }
     }
 
+    /**
+     * A summon is conjured out of mana, so there is nothing on it to take: killing one yields no
+     * items and no experience. Without this every summoning spell doubled as a way to manufacture
+     * loot - an Iron Golem paid out iron ingots and poppies for a spell you could simply cast again.
+     */
+    @SubscribeEvent
+    public static void onSummonDrops(net.neoforged.neoforge.event.entity.living.LivingDropsEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.Mob mob
+                && buildaspell.spell.MobSpellState.isSummon(mob)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** Companion to {@link #onSummonDrops}: a summon is worth no experience either. */
+    @SubscribeEvent
+    public static void onSummonExperienceDrop(
+            net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.Mob mob
+                && buildaspell.spell.MobSpellState.isSummon(mob)) {
+            event.setCanceled(true);
+        }
+    }
+
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity().level().isClientSide()) {
@@ -228,10 +252,8 @@ public class ServerEvents {
         if (bookIdType != null) {
             @SuppressWarnings("unchecked")
             var typed = (net.minecraft.core.component.DataComponentType<net.minecraft.resources.Identifier>) bookIdType;
-            // Book id is namespace "spell_guidebook", path = mod id (see SpellGuidebook datagen:
-            // SingleBookSubProvider(bookId, namespace, ...) -> spell_guidebook:buildaspell).
             stack.set(typed, net.minecraft.resources.Identifier.fromNamespaceAndPath(
-                    "spell_guidebook", BuildASpell.MOD_ID));
+                    BuildASpell.MOD_ID, "spell_guidebook"));
         }
         if (!player.getInventory().add(stack)) {
             player.drop(stack, false);

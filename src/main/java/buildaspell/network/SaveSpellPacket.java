@@ -68,34 +68,49 @@ public record SaveSpellPacket(int slotIndex, String name, String deliveryId,
                     return;
                 }
 
+                // The payload is one flat list, but a Spell holds two: the effect chain and the
+                // delivery-level (roster) modifiers, each bounded by the same limit in Spell itself.
+                // Count them the same way here. Measuring the flat list against a single cap counted
+                // roster modifiers against the chain's budget, so a spell the builder let you make
+                // arrived with its tail quietly missing.
+                int maxComponents = Spell.maxComponents();
                 List<SpellComponent> components = new ArrayList<>();
+                int chainCount = 0;
+                int rosterCount = 0;
                 for (int i = 0; i < packet.orderedComponentIds().size() && i < packet.componentTypes().size(); i++) {
-                    if (components.size() >= Spell.MAX_COMPONENTS) break;
-
                     String type = packet.componentTypes().get(i);
                     String id = packet.orderedComponentIds().get(i);
 
                     if ("effect".equals(type)) {
+                        if (chainCount >= maxComponents) continue;
                         SpellEffect effect = SpellEffect.fromId(id);
                         if (effect != null && spellData.isEffectUnlocked(effect)
                                 && ModConfig.isEffectEnabled(effect)) {
                             components.add(new SpellComponent.Effect(effect));
+                            chainCount++;
                         }
                     } else if ("modifier".equals(type)) {
                         SpellModifier modifier = SpellModifier.fromId(id);
                         if (modifier != null && spellData.isModifierUnlocked(modifier)
                                 && ModConfig.isModifierEnabled(modifier)) {
+                            boolean roster = ModifierApplicability.isDeliveryLevel(modifier);
+                            if ((roster ? rosterCount : chainCount) >= maxComponents) continue;
                             components.add(new SpellComponent.Modifier(modifier));
+                            if (roster) rosterCount++; else chainCount++;
                         }
                     } else if ("data_effect".equals(type)) {
+                        if (chainCount >= maxComponents) continue;
                         // Datapack-authored effects bypass the unlock progression — always available.
                         // Validate against the loaded registry so stale ids aren't persisted.
                         Identifier effectId = Identifier.tryParse(id);
                         if (effectId != null && buildaspell.spell.data.EffectRegistry.get(effectId) != null) {
                             components.add(new SpellComponent.DataEffect(effectId));
+                            chainCount++;
                         }
                     } else if ("compat_effect".equals(type)) {
+                        if (chainCount >= maxComponents) continue;
                         components.add(new SpellComponent.CompatEffect(id));
+                        chainCount++;
                     }
                 }
 

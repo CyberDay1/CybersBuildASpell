@@ -1,12 +1,13 @@
 package buildaspell.datagen.entries.combos;
 
+import buildaspell.datagen.GuidebookPrerequisite;
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookEntryModel;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class CataclysmCombosEntry extends EntryProvider {
@@ -21,22 +22,21 @@ public class CataclysmCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Meteor Strike");
-        this.pageText("Combine Launch + Explosion + Ignite with Increased Power x2 (min 5 components) to call down a meteor strike.\\\nA volley of huge fireballs rains from the sky onto the target area, each detonating in an explosion and setting the ground ablaze. Increased Power widens the bombardment and adds more meteors, though its effect caps at two stacks.");
+        this.pageText("Hurl fire and ruin at the heavens with enough raw power behind it, and the heavens hurl it back.\\\n\\\nA volley of huge fireballs rains from the sky onto the target area, each detonating in an explosion and setting the ground ablaze.\\\n\\\nIncreased Area widens the bombardment and adds more meteors; Increased Power makes each blast bigger, capping at two stacks.");
 
         this.page("firestorm", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Firestorm");
-        this.pageText("Combine Ignite + Explosion with Increased Area (min 3 components) to summon a firestorm.\\\nA rain of small fireballs falls across the area, leaving lingering flames burning on the ground where they land. Lighter and wider than a Meteor Strike, it blankets a broad zone in fire. Increased Area widens the storm.");
+        this.pageText("Flame and blast, spread wide rather than piled high, settle over the land as a burning rain.\\\n\\\nA rain of small fireballs falls across the area, leaving lingering flames burning on the ground where they land.\\\n\\\nLighter and wider than a Meteor Strike, it blankets a broad zone in fire.\\\n\\\nIncreased Area widens the storm.");
     }
 
     @Override
     protected BookEntryModel additionalSetup(BookEntryModel entry) {
         entry.hideWhileLocked(true);
         entry.withCondition(
-                this.condition().entryRead(
-                        this.modLoc("spell_effects/direct_damage")
-                )
+                this.condition().entryViewedOnce(
+                        GuidebookPrerequisite.of(this.modLoc("spell_effects/direct_damage")))
         );
         return entry;
     }
@@ -52,7 +52,7 @@ public class CataclysmCombosEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

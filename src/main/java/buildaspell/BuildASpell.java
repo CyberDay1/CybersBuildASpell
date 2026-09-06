@@ -1,8 +1,7 @@
 package buildaspell;
 
 import buildaspell.config.ModConfig;
-// Modonomicon guidebook datagen disabled on 26.2 until modonomicon-26.2-neoforge ships.
-// import buildaspell.datagen.ModDataGenerators;
+import buildaspell.datagen.ModDataGenerators;
 import buildaspell.events.ServerEvents;
 import buildaspell.network.ModPackets;
 import buildaspell.registry.*;
@@ -50,9 +49,10 @@ public class BuildASpell {
         // Mod bus event handlers (these events fire on the mod bus, not the game bus)
         modEventBus.addListener(ModPackets::registerPackets);
         modEventBus.addListener(ModAttributes::onAttributeModification);
+        modEventBus.addListener(ModCreativeTabs::onBuildCreativeTabContents);
         // Retires defaults that an older release already baked into an existing world's config file.
         modEventBus.addListener(ModConfig::onConfigLoad);
-        // modEventBus.addListener(ModDataGenerators::onGatherData); // Modonomicon datagen disabled on 26.2
+        modEventBus.addListener(ModDataGenerators::onGatherData);
         modEventBus.addListener(buildaspell.portal.PortalChunkLoader::register);
 
         // Game bus event handlers (these fire on the NeoForge game event bus)

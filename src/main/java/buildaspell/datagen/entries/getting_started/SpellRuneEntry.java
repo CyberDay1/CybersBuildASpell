@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class SpellRuneEntry extends EntryProvider {
@@ -22,13 +22,13 @@ public class SpellRuneEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Spell Rune");
-        this.pageText("A Spell Rune is a Blank Rune that has been inscribed with a spell using the Spell Builder.\\\nEach Spell Rune holds a single spell configuration and can be assigned to one of 10 slots in the Ability Ring for quick casting.");
+        this.pageText("A Spell Rune is a Blank Rune that has been inscribed with a spell using the Spell Builder.\\\n\\\nEach Spell Rune holds a single spell configuration and can be assigned to one of 10 slots in the Ability Ring for quick casting.");
 
         this.page("usage", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Using Spell Runes");
-        this.pageText("Open the Spell Builder (G key) to design your spell on a Blank Rune. Once saved, the Blank Rune transforms into a Spell Rune.\\\nAssign it to your Ability Ring (V key) and use the Cast Spell key or direct slot keybinds to cast.");
+        this.pageText("Open the Spell Builder (G key) to design your spell on a Blank Rune.\\\n\\\nOnce saved, the Blank Rune transforms into a Spell Rune.\\\n\\\nAssign it to your Ability Ring (V key) and use the Cast Spell key or direct slot keybinds to cast.");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SpellRuneEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

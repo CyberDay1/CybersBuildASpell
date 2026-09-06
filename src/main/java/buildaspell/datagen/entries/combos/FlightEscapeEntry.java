@@ -1,12 +1,13 @@
 package buildaspell.datagen.entries.combos;
 
+import buildaspell.datagen.GuidebookPrerequisite;
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookEntryModel;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class FlightEscapeEntry extends EntryProvider {
@@ -21,13 +22,13 @@ public class FlightEscapeEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Creative Flight");
-        this.pageText("Combine Launch + Levitation + Slow Fall (min 3 components) to achieve true creative-style flight. This combo grants the caster the ability to fly freely for its duration.\\\nBest used with Self delivery and Duration modifier for extended flight time.");
+        this.pageText("A caster who weaves together every way a body can rise and fall gently may, for a time, forget the ground entirely.\\\n\\\nThis combo grants the caster the ability to fly freely for its duration.\\\n\\\nBest used with Self delivery; Prolonged and Increased Power extend the flight time.");
 
         this.page("emergency_escape", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Emergency Escape");
-        this.pageText("Combine Blink + Recall + Teleport (min 3 components) to create an emergency escape spell.\\\nWhen cast, this combo instantly teleports you to your Mark location, performing a rapid three-stage teleportation sequence that is extremely difficult to follow or counter.");
+        this.pageText("Stack every art of vanishing you know into one desperate working and the spell will choose your exit for you.\\\n\\\nWhen cast, this combo whisks you to a random safe spot far from danger: potentially hundreds of blocks away.\\\n\\\nNot even the caster knows where they will land, which makes it impossible to follow or counter.");
     }
 
     @Override
@@ -35,12 +36,10 @@ public class FlightEscapeEntry extends EntryProvider {
         entry.hideWhileLocked(true);
         entry.withCondition(
                 this.condition().and(
-                        this.condition().entryReadBuilder(
-                                this.modLoc("spell_effects/movement_force")
-                        ),
-                        this.condition().entryReadBuilder(
-                                this.modLoc("spell_effects/teleportation")
-                        )
+                        this.condition().entryViewedOnce(
+                                GuidebookPrerequisite.of(this.modLoc("spell_effects/movement_force"))),
+                        this.condition().entryViewedOnce(
+                                GuidebookPrerequisite.of(this.modLoc("spell_effects/teleportation")))
                 )
         );
         return entry;
@@ -57,7 +56,7 @@ public class FlightEscapeEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

@@ -318,6 +318,12 @@ public class ArcaneAltarScreen extends AbstractContainerScreen<ArcaneAltarMenu> 
         graphics.text(font, "Item", 136 - font.width("Item") / 2, 6, COLOR_TEXT, false);
     }
 
+    /** See {@link SpellBuilderScreen#extractBlurredBackground} — the panel is its own backdrop. */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op
+    }
+
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Background drawn in absolute coords before the translated label/slot pass.
@@ -333,7 +339,7 @@ public class ArcaneAltarScreen extends AbstractContainerScreen<ArcaneAltarMenu> 
 
         // Level readout, centred between the - / + buttons
         int levelCenterX = leftPos + 8 + 86 / 2;
-        graphics.centeredText(font, "Lv " + selectedLevel, levelCenterX, topPos + 90, 0xFFFFFFFF);
+        GuiTheme.centeredTextNoShadow(graphics, font, "Lv " + selectedLevel, levelCenterX, topPos + 90, 0xFFFFFFFF);
 
         // Cumulative cost summary in the right column, under the input slot: the total
         // materials (icons + counts) and XP to climb from the item's current level to the

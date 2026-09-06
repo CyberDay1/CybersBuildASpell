@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class AbilityRingEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class AbilityRingEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Ability Ring (V Key)");
-        this.pageText("The Ability Ring is a radial menu for quick spell selection. Press V to open it and hover over a slot to select that spell.\\\nThe ring supports 10 spell slots, each holding one Spell Rune. Release V to select the highlighted spell for casting.");
+        this.pageText("The Ability Ring is a radial menu for quick spell selection.\\\n\\\nPress V to open it and hover over a slot to select that spell.\\\n\\\nThe ring supports 10 spell slots, each holding one Spell Rune.\\\n\\\nRelease V to select the highlighted spell for casting.");
 
         this.page("keybinds", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Slot Keybinds");
-        this.pageText("The first five slots can also be cast directly with their own keybinds (Cast Spell 1 through Cast Spell 5), bypassing the ring entirely for faster access. The remaining slots are reached through the ring itself.\\\nConfigure these keybinds in the Controls menu under the 'Build a Spell' category.");
+        this.pageText("The first five slots can also be cast directly with their own keybinds (Cast Spell 1 through Cast Spell 5), bypassing the ring entirely for faster access.\\\n\\\nThe remaining slots are reached through the ring itself.\\\n\\\nConfigure these keybinds in the Controls menu under the 'Build a Spell' category.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AbilityRingEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

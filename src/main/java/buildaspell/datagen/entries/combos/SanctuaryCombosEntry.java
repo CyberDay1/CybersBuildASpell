@@ -1,12 +1,13 @@
 package buildaspell.datagen.entries.combos;
 
+import buildaspell.datagen.GuidebookPrerequisite;
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookEntryModel;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class SanctuaryCombosEntry extends EntryProvider {
@@ -21,16 +22,15 @@ public class SanctuaryCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Sanctuary");
-        this.pageText("Combine Heal with Increased Area + Duration (min 3 components) to consecrate a sanctuary.\\\nThe ground is hallowed, wrapping every player who stands within it (yourself included) in a protective ward of regeneration, resistance, and absorption. Hostile mobs are never sheltered. Increased Power strengthens the ward and Duration makes it last longer.");
+        this.pageText("Mending magic, poured out over ground instead of a body and left to keep working, consecrates the earth itself.\\\n\\\nThe ground is hallowed, wrapping every player who stands within it (yourself included) in a protective ward of regeneration, resistance, and absorption.\\\n\\\nHostile mobs are never sheltered.\\\n\\\nIncreased Power strengthens the ward and Duration makes it last longer.");
     }
 
     @Override
     protected BookEntryModel additionalSetup(BookEntryModel entry) {
         entry.hideWhileLocked(true);
         entry.withCondition(
-                this.condition().entryRead(
-                        this.modLoc("spell_effects/healing_buffs")
-                )
+                this.condition().entryViewedOnce(
+                        GuidebookPrerequisite.of(this.modLoc("spell_effects/healing_buffs")))
         );
         return entry;
     }
@@ -46,7 +46,7 @@ public class SanctuaryCombosEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

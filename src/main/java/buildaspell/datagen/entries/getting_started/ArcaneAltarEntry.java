@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class ArcaneAltarEntry extends EntryProvider {
@@ -22,13 +22,13 @@ public class ArcaneAltarEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Arcane Altar");
-        this.pageText("The Arcane Altar is the enchanting station for Build-A-Spell.\\\nUnlike the vanilla Enchanting Table, the Arcane Altar supports three unique enchantments with no level cap, letting you push your magical abilities beyond normal limits.");
+        this.pageText("The Arcane Altar is the enchanting station for Build-A-Spell.\\\n\\\nUnlike the vanilla Enchanting Table, the Arcane Altar supports three unique enchantments with no level cap by default: server owners can set a cap for each enchantment in the config.");
 
         this.page("enchanting", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Enchantments");
-        this.pageText("The three enchantments available at the Arcane Altar are Mana Pool (increases maximum mana), Mana Regeneration (speeds mana recovery), and Spell Power (amplifies spell effects).\\\nEach enchantment can be applied multiple times with increasing cost per tier.");
+        this.pageText("The three enchantments available at the Arcane Altar are Mana Pool (increases maximum mana), Mana Regeneration (speeds mana recovery), and Spell Power (amplifies spell effects).\\\n\\\nEach enchantment can be applied multiple times with increasing cost per tier.");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ArcaneAltarEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

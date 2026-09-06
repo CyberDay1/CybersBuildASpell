@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class TeleportationEntry extends EntryProvider {
@@ -20,19 +20,19 @@ public class TeleportationEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Teleport & Blink");
-        this.pageText("Teleport (50 mana) moves the target to the impact location. With Self delivery, you teleport to where you're looking.\\\nBlink (35 mana) is a short-range instant teleport in the direction you're facing, cheaper but with limited range. Both ignore obstacles.");
+        this.pageText("Teleport (50 mana) moves you, the caster, to wherever the spell lands.\\\n\\\nWith Self delivery, you teleport forward toward where you're looking.\\\n\\\nBlink (35 mana) is a short-range instant teleport in the direction you're facing, cheaper but with limited range.");
 
         this.page("swap_mark_recall", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Swap, Mark & Recall");
-        this.pageText("Swap (45 mana) exchanges positions between the caster and the target. Mark (30 mana) places an invisible waypoint at the target location.\\\nRecall (40 mana) teleports the caster back to the most recently placed Mark. Mark and Recall work across dimensions.");
+        this.pageText("Swap (45 mana) exchanges positions between the caster and the target.\\\n\\\nMark (30 mana) places an invisible waypoint at the target location.\\\n\\\nRecall (40 mana) teleports the caster back to the most recently placed Mark.\\\n\\\nEach caster keeps one Mark at a time, and Recall returns you to its coordinates in your current dimension.");
 
         this.page("combos_hint", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Teleportation Combos");
-        this.pageText("Teleportation effects are key ingredients in several powerful combos. Combining teleportation with movement effects can unlock flight capabilities, while mixing with other schools produces unique synergies.\\\nExperiment with different combinations to discover hidden techniques.");
+        this.pageText("Teleportation effects are key ingredients in several powerful combos.\\\n\\\nCombining teleportation with movement effects can unlock flight capabilities, while mixing with other schools produces unique synergies.\\\n\\\nExperiment with different combinations to discover hidden techniques.");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class TeleportationEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

@@ -3,12 +3,20 @@ package buildaspell.datagen;
 import com.klikli_dev.modonomicon.api.datagen.SingleBookSubProvider;
 import buildaspell.datagen.categories.*;
 
-import java.util.function.BiConsumer;
-
 public class SpellGuidebook extends SingleBookSubProvider {
 
-    public SpellGuidebook(String modId, BiConsumer<String, String> lang) {
-        super(modId, "spell_guidebook", lang);
+    public static final String BOOK_ID = "spell_guidebook";
+
+    // Modonomicon 2.x no longer takes the lang consumer here — BookProvider injects it from the
+    // shared LanguageProviderCache.
+    //
+    // The arguments are (bookId, modId), and they used to be passed the other way round, giving the
+    // book the id spell_guidebook:buildaspell. That has to be corrected: BookProvider looks the
+    // book's research up under <mod container id>:<bookId>, so the research the combos gating
+    // generates is only found when the book's namespace is the real mod id. Nothing is lost by
+    // fixing it here — this branch has never shipped a book to migrate.
+    public SpellGuidebook(String modId) {
+        super(BOOK_ID, modId);
     }
 
     @Override

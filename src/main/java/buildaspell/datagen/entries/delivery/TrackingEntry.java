@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class TrackingEntry extends EntryProvider {
@@ -20,7 +20,7 @@ public class TrackingEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Tracking Delivery (35 mana)");
-        this.pageText("The Tracking delivery method fires a homing projectile that seeks out the nearest valid target. At 35 base mana it is the most expensive delivery method, but its ability to lock onto and follow targets makes it devastating in combat. The projectile adjusts its trajectory mid-flight to home in on its target.");
+        this.pageText("The Tracking delivery method fires a homing projectile that seeks out the nearest valid target.\\\n\\\nAt 35 base mana it is the most expensive delivery method, but its ability to lock onto and follow targets makes it devastating in combat.\\\n\\\nThe projectile adjusts its trajectory mid-flight to home in on its target.");
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TrackingEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

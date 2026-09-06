@@ -1,12 +1,13 @@
 package buildaspell.datagen.entries.combos;
 
+import buildaspell.datagen.GuidebookPrerequisite;
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookEntryModel;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class SummonCombosEntry extends EntryProvider {
@@ -21,22 +22,21 @@ public class SummonCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Iron Golem & Vexes");
-        this.pageText("Iron Golem: Combine Summon + Heal with Increased Power (min 3 components) to summon a friendly Iron Golem.\\\nVexes: Combine Summon + Teleport + Damage (min 3 components) to summon a swarm of allied Vexes that attack nearby enemies.");
+        this.pageText("Summoning is a school of pairings: what you weave alongside the calling decides what answers.\\\n\\\nBolster the calling with restorative magic and a friendly Iron Golem answers.\\\n\\\nLace it instead with violence and spatial trickery, and a swarm of allied Vexes flickers into being to harry nearby enemies.");
 
         this.page("skeleton_vindicator", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Skeletons & Vindicators");
-        this.pageText("Skeletons: Combine Summon + Lightning with Increased Power (min 3 components) to summon a squad of Skeleton archers.\\\nVindicators: Combine Summon + Damage with Increased Power x2 + Increased Area (min 4 components) to summon a group of allied Vindicators.");
+        this.pageText("Call with the storm's own fury and a company of Skeletons rises to your banner, some drawing bows and some swords.\\\n\\\nPour raw, widened power into a violent calling and ranks of allied Vindicators march out instead.\\\n\\\nBoth armies fight for you, and both take real strength to raise: weak workings summon nothing.");
     }
 
     @Override
     protected BookEntryModel additionalSetup(BookEntryModel entry) {
         entry.hideWhileLocked(true);
         entry.withCondition(
-                this.condition().entryRead(
-                        this.modLoc("spell_effects/summoning")
-                )
+                this.condition().entryViewedOnce(
+                        GuidebookPrerequisite.of(this.modLoc("spell_effects/summoning")))
         );
         return entry;
     }
@@ -52,7 +52,7 @@ public class SummonCombosEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

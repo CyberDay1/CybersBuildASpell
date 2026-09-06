@@ -24,7 +24,7 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         add("key.buildaspell.ability_ring", "Open Ability Ring");
         add("key.buildaspell.cast_spell", "Cast Spell");
         add("key.buildaspell.spell_builder", "Open Spell Builder");
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 5; i++) {
             add("key.buildaspell.spell_slot_" + i, "Cast Spell " + i);
         }
         add("key.buildaspell.next_spell_slot", "Next Spell Slot");
@@ -102,6 +102,8 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         add("gui.buildaspell.spell_builder.require_effect", "Please add at least one effect!");
         add("gui.buildaspell.spell_builder.modifier_no_effect", "%s has no effect on %s — not added.");
         add("gui.buildaspell.spell_builder.modifier_no_delivery", "%s needs a projectile delivery — not added.");
+        add("gui.buildaspell.spell_builder.chain_full", "This spell already holds %s effects and modifiers — not added.");
+        add("gui.buildaspell.spell_builder.delivery_full", "The delivery already holds %s modifiers — not added.");
         add("gui.buildaspell.spell_builder.spell_saved", "Spell saved to slot %s!");
         add("gui.buildaspell.spell_builder.no_export", "No spell to export!");
         add("gui.buildaspell.spell_builder.exported", "Spell exported:");
@@ -200,7 +202,7 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         addEffect(SpellEffect.CONJURE, "Conjure", "Conjures blocks");
         addEffect(SpellEffect.GROWTH, "Growth", "Grows crops/trees");
         addEffect(SpellEffect.CLEANSE, "Cleanse", "Removes potion effects");
-        addEffect(SpellEffect.CHARM, "Charm", "Enemies attack each other");
+        addEffect(SpellEffect.CHARM, "Charm", "Pacifies enemies so they stop attacking");
         addEffect(SpellEffect.BLIND, "Blind", "Reduces vision");
         addEffect(SpellEffect.SLOW, "Slow", "Slows the target");
         addEffect(SpellEffect.WEAKEN, "Weaken", "Weakens attacks");
@@ -216,18 +218,18 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         // --- Spell Modifiers ---
         addModifier(SpellModifier.INCREASED_AREA, "Increased Area", "Larger radius");
         addModifier(SpellModifier.INCREASED_POWER, "Increased Power", "More powerful");
-        addModifier(SpellModifier.NULLIFY, "Nullify", "Prevents damage");
+        addModifier(SpellModifier.NULLIFY, "Nullify", "Prevents entity damage");
         addModifier(SpellModifier.GENTLENESS, "Gentleness", "Softer effect");
         addModifier(SpellModifier.FORTUNATE_SON, "Fortunate Son", "Better drops");
         addModifier(SpellModifier.DOUBLE, "Double", "Double cast");
-        addModifier(SpellModifier.ECHO, "Echo", "Cast twice");
-        addModifier(SpellModifier.PROLONGED, "Prolonged", "Lasts longer");
+        addModifier(SpellModifier.ECHO, "Echo", "Re-casts at reduced power");
+        addModifier(SpellModifier.PROLONGED, "Prolonged", "Status effects last longer");
         addModifier(SpellModifier.DELAY, "Delay", "Delayed cast");
         addModifier(SpellModifier.CHAIN, "Chain", "Chains to targets");
         addModifier(SpellModifier.PIERCE, "Pierce", "Pierces through");
         addModifier(SpellModifier.BOUNCE, "Bounce", "Bounces off walls");
         addModifier(SpellModifier.ACCELERATE, "Accelerate", "Faster projectile");
-        addModifier(SpellModifier.DURATION, "Duration", "Area over time");
+        addModifier(SpellModifier.DURATION, "Duration", "Zones & summons last longer");
         addModifier(SpellModifier.LINGER, "Linger", "Effects persist as a lingering area");
         addModifier(SpellModifier.SPLIT, "Split", "Split projectiles");
         addModifier(SpellModifier.WALL, "Wall", "Vertical structure");

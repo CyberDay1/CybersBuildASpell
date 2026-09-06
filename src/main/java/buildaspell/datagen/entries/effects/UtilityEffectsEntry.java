@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class UtilityEffectsEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class UtilityEffectsEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Pickup (15 mana)");
-        this.pageText("Pickup collects all dropped items in the target area and teleports them into the caster's inventory. At 15 mana, it is cheap and incredibly convenient for collecting loot after combat or mining.\\\nScales with Increased Area to cover a larger collection radius.");
+        this.pageText("Pickup collects all dropped items in the target area and teleports them into the caster's inventory.\\\n\\\nAt 15 mana, it is cheap and incredibly convenient for collecting loot after combat or mining.\\\n\\\nScales with Increased Area to cover a larger collection radius.");
 
         this.page("vision_breathing", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Night Vision & Water Breathing");
-        this.pageText("Night Vision (15 mana) lets the target see clearly in the dark, while Water Breathing (15 mana) lets them breathe underwater.\\\nBoth are cheap exploration utilities and last longer with the Prolonged modifier. Cast on an area to cover your whole party at once.");
+        this.pageText("Night Vision (15 mana) lets the target see clearly in the dark, while Water Breathing (15 mana) lets them breathe underwater.\\\n\\\nBoth are cheap exploration utilities and last longer with the Prolonged modifier.\\\n\\\nCast on an area to cover your whole party at once.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UtilityEffectsEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

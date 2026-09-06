@@ -71,19 +71,13 @@ neoForge {
 
 sourceSets.main.get().resources.srcDir("src/generated/resources")
 
-// Modonomicon guidebook datagen is excluded from compilation on the 26.2 branch
-// until a modonomicon-26.2-neoforge artifact is published. Re-enable by removing
-// this exclude (and restoring the dependency + datagen listener) once it ships.
-sourceSets.main.get().java.exclude("**/datagen/**")
-
 dependencies {
     implementation("org.jetbrains:annotations:24.0.1")
     // NeoPortals optional dependency — provides see-through portal rendering when present
     compileOnly(files("libs/neoportals-1.0.0.jar"))
-    // Modonomicon guidebook — TEMPORARILY DISABLED on 26.2: no modonomicon-26.2-neoforge
-    // artifact published yet. Re-enable (and re-enable the guidebook/datagen code) once
-    // klikli ships a 26.2 build.
-    // implementation("com.klikli_dev:modonomicon-26.2-neoforge:${findProperty("modonomicon_version")}")
+    // Modonomicon guidebook. The 26.2 artifact line restarted its numbering at 2.x, so this
+    // branch's modonomicon_version does NOT match the 1.13x used on 1.21.1 and 26.1.
+    implementation("com.klikli_dev:modonomicon-26.2-neoforge:${findProperty("modonomicon_version")}")
 }
 
 tasks.withType<JavaCompile>().configureEach {

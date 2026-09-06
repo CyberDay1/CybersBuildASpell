@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class SelfDeliveryEntry extends EntryProvider {
@@ -20,7 +20,7 @@ public class SelfDeliveryEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Self Delivery (5 mana)");
-        this.pageText("The Self delivery method targets the caster directly. It is the cheapest delivery method at 5 base mana cost, making it ideal for buff spells like Shield, Speed, Heal, and Invisibility. The spell takes effect instantly on the caster with no projectile or targeting required.");
+        this.pageText("The Self delivery method targets the caster directly.\\\n\\\nIt is the cheapest delivery method at 5 base mana cost, making it ideal for buff spells like Shield, Speed, Heal, and Invisibility.\\\n\\\nThe spell takes effect instantly on the caster with no projectile or targeting required.");
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SelfDeliveryEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  */
 public class SpellVisualScreen extends Screen {
 
-    // Curated trail ids — must match SpellProjectileEntity#trailParticle.
+    // Curated trail ids â must match SpellProjectileEntity#trailParticle.
     private static final String[] TRAILS = {
             "witch", "flame", "soul_fire_flame", "end_rod", "crit", "enchanted_hit",
             "electric_spark", "dragon_breath", "glow", "cherry", "smoke", "snowflake", "happy_villager"
@@ -137,6 +137,12 @@ public class SpellVisualScreen extends Screen {
                 Component.translatable("gui.buildaspell.trail." + TRAILS[trailIndex]));
     }
 
+    /** See {@link SpellBuilderScreen#extractBlurredBackground} — this screen paints its own backdrop. */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTick) {
         // Scrim over the parent screen (panels/content draw first, widgets layer on top via super).
@@ -150,8 +156,8 @@ public class SpellVisualScreen extends Screen {
         gfx.fill(px, py, px + pw, py + ph, PANEL_BG);
         drawOutline(gfx, px, py, pw, ph, PANEL_BORDER);
 
-        gfx.centeredText(this.font, this.title.copy().withStyle(ChatFormatting.BOLD), cx, py + 6, HEADER);
-        gfx.centeredText(this.font,
+        GuiTheme.centeredTextNoShadow(gfx, this.font, this.title.copy().withStyle(ChatFormatting.BOLD), cx, py + 6, HEADER);
+        GuiTheme.centeredTextNoShadow(gfx, this.font,
                 Component.translatable("gui.buildaspell.spell_builder.visuals_note"), cx, py + 18, TEXT_DIM);
 
         // live color swatch + simple shape silhouette
@@ -185,7 +191,7 @@ public class SpellVisualScreen extends Screen {
                 gfx.fill(x + 10, y + 6, x + size - 10, y + size - 6, color);
                 gfx.fill(x + 6, y + 10, x + size - 6, y + size - 10, color);
             }
-            default -> { // CROSS — a diagonal X using two thin bands
+            default -> { // CROSS â a diagonal X using two thin bands
                 for (int i = 0; i < size; i++) {
                     gfx.fill(x + i, y + i, x + i + 2, y + i + 2, color);
                     gfx.fill(x + i, y + size - i - 2, x + i + 2, y + size - i, color);
@@ -204,7 +210,7 @@ public class SpellVisualScreen extends Screen {
         return false;
     }
 
-    /** 0–255 slider that writes through to a setter and reports that the player touched it. */
+    /** 0â255 slider that writes through to a setter and reports that the player touched it. */
     private static class RgbSlider extends AbstractSliderButton {
         private final String channel;
         private final java.util.function.IntConsumer setter;

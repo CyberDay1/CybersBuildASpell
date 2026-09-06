@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class SummoningEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class SummoningEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Summon (50 mana)");
-        this.pageText("The Summon effect conjures an allied entity at the target location. The type of entity summoned depends on the other effects and modifiers in the spell.\\\nOn its own, Summon produces a basic ally. Combined with specific effects, it can summon Iron Golems, Vexes, Skeletons, or Vindicators.");
+        this.pageText("The Summon effect conjures an allied entity at the target location.\\\n\\\nThe type of entity summoned depends on the other effects and modifiers in the spell.\\\n\\\nOn its own, Summon produces a basic ally.\\\n\\\nCombined with specific effects, it can summon Iron Golems, Vexes, Skeletons, or Vindicators.\\\n\\\nSummoned skeletons carry a bow or a sword, and vindicators an axe. Every summon is conjured out of mana, weapon and all, so none of them leaves behind loot or experience when it dies.");
 
         this.page("charm", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Charm (35 mana)");
-        this.pageText("Charm clouds the minds of nearby creatures, afflicting every mob within range with a disorienting nausea that scrambles their senses.\\\nThe effect lingers longer when boosted with the Prolonged or Increased Power modifiers. Unlike Summon, Charm works on creatures already in the world rather than conjuring new ones.");
+        this.pageText("Charm pacifies every mob within range: they drop whatever they were attacking and cannot pick a new target while the effect lasts, wandering in a disoriented haze instead.\\\n\\\nThe pacify lasts longer when boosted with the Prolonged or Increased Power modifiers.\\\n\\\nUnlike Summon, Charm works on creatures already in the world rather than conjuring new ones.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SummoningEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

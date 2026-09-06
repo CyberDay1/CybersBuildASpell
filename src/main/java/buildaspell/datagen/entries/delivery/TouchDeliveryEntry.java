@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class TouchDeliveryEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class TouchDeliveryEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Touch Delivery (15 mana)");
-        this.pageText("Touch holds the spell ready in your hand instead of casting it right away. The spell is released the next time you strike an entity in melee or right-click an entity or block.\\\nIf you do not use the charge in time, it fades away.");
+        this.pageText("Touch holds the spell ready in your hand instead of casting it right away.\\\n\\\nThe spell is released the next time you strike an entity in melee or right-click an entity or block.\\\n\\\nIf you do not use the charge in time, it fades away.");
 
         this.page("usage", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Using Touch");
-        this.pageText("Touch is the cheapest way to land a spell exactly on a target, with no projectile to dodge. It pairs naturally with damage and status effects: charge the spell, then deliver it with a sword swing.\\\nOnly one charge is held at a time, so casting Touch again replaces the previous one.");
+        this.pageText("Touch is the cheapest way to land a spell exactly on a target, with no projectile to dodge.\\\n\\\nIt pairs naturally with damage and status effects: charge the spell, then deliver it with a sword swing.\\\n\\\nOnly one charge is held at a time, so casting Touch again replaces the previous one.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TouchDeliveryEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

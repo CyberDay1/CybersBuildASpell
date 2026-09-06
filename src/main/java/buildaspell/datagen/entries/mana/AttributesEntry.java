@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class AttributesEntry extends EntryProvider {
@@ -20,13 +20,13 @@ public class AttributesEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Pool & Regeneration");
-        this.pageText("Mana Pool determines your maximum mana capacity (default: 100). Mana Regen controls how quickly mana restores (default: 5/sec).\\\nBoth can be increased through enchantments at the Arcane Altar and are exposed as entity attributes for cross-mod compatibility.");
+        this.pageText("Mana Pool determines your maximum mana capacity (default: 100).\\\n\\\nMana Regen controls how quickly mana restores (default: 5/sec).\\\n\\\nBoth can be increased through enchantments at the Arcane Altar and are exposed as entity attributes for cross-mod compatibility.");
 
         this.page("power_speed", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Spell Power");
-        this.pageText("Spell Power scales the magnitude of your spell effects: more Power means more damage, healing, and force (default: 10).\\\nSpell Power can be raised through enchantments at the Arcane Altar, and is exposed as an entity attribute so equipment and other mods can modify it through the standard attribute system.");
+        this.pageText("Spell Power scales the magnitude of your spell effects: more Power means more damage, healing, and force (default: 10).\\\n\\\nSpell Power can be raised through enchantments at the Arcane Altar, and is exposed as an entity attribute so equipment and other mods can modify it through the standard attribute system.");
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AttributesEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

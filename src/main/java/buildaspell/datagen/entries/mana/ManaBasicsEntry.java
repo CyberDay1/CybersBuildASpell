@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class ManaBasicsEntry extends EntryProvider {
@@ -20,19 +20,19 @@ public class ManaBasicsEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Mana Overview");
-        this.pageText("Every player has a mana pool that fuels spell casting. The base mana pool holds 100 mana points and regenerates at a rate of 5 mana per second.\\\nThe mana bar HUD can be toggled with the M key.");
+        this.pageText("Every player has a mana pool that fuels spell casting.\\\n\\\nThe base mana pool holds 100 mana points and regenerates at a rate of 5 mana per second.\\\n\\\nThe mana bar HUD can be toggled with the M key.");
 
         this.page("cost", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Mana Cost Formula");
-        this.pageText("Each spell's mana cost is calculated by adding the base costs of the delivery method, all effects, and all modifiers.\\\nThe total is then multiplied by the server's global cost multiplier and any per-component cost multipliers set in the config.");
+        this.pageText("Each spell's mana cost starts with the base prices of its delivery method, its effects, and its modifiers.\\\n\\\nRepeats cost more each time: a second copy of the same effect is charged half again as much as the first, and a third half again as much as that. Effects are counted across the whole spell, but a modifier is counted only against the effect it sits on, so spreading a modifier over several effects comes cheaper than piling it onto one.\\\n\\\nEcho and Double are charged as a share of everything else the spell costs rather than a price of their own.\\\n\\\nThe total is then multiplied by the server's global cost multiplier and any per-component cost multipliers set in the config.");
 
         this.page("recovery", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Mana Recovery");
-        this.pageText("Mana regenerates passively over time based on your Mana Regen attribute. The default rate of 5 per second can be increased through the Mana Regeneration enchantment at the Arcane Altar.\\\nRegeneration is continuous: your pool refills steadily whether you are casting or not.");
+        this.pageText("Mana regenerates passively over time based on your Mana Regen attribute.\\\n\\\nThe default rate of 5 per second can be increased through the Mana Regeneration enchantment at the Arcane Altar.\\\n\\\nRegeneration is continuous: your pool refills steadily whether you are casting or not.");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ManaBasicsEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 

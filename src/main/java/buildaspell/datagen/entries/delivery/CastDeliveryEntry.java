@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.EntryBackground;
 import com.klikli_dev.modonomicon.api.datagen.EntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import com.mojang.datafixers.util.Pair;
+import com.klikli_dev.modonomicon.client.gui.book.theme.GuiSprite;
 import net.minecraft.world.item.Items;
 
 public class CastDeliveryEntry extends EntryProvider {
@@ -20,7 +20,7 @@ public class CastDeliveryEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Cast Delivery (25 mana)");
-        this.pageText("The Cast delivery method fires a magical projectile in the direction the caster is looking. At 25 base mana, it offers a good balance between cost and versatility.\\\nThe projectile travels in a straight line and triggers on the first entity or block it hits.");
+        this.pageText("The Cast delivery method fires a magical projectile in the direction the caster is looking.\\\n\\\nAt 25 base mana, it offers a good balance between cost and versatility.\\\n\\\nThe projectile travels in a straight line and triggers on the first entity or block it hits.");
 
         this.page("modifiers", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
@@ -40,7 +40,7 @@ public class CastDeliveryEntry extends EntryProvider {
     }
 
     @Override
-    protected Pair<Integer, Integer> entryBackground() {
+    protected GuiSprite entryBackground() {
         return EntryBackground.DEFAULT;
     }
 
