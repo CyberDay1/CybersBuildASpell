@@ -14,7 +14,7 @@ This guide walks through installing Build a Spell, opening the Spell Builder, an
 2. Download the jar matching your Minecraft version: `buildaspell-1.0.3-mc<version>.jar`.
 3. Place it in your `mods/` folder and launch the game.
 
-Optional integrations (NeoPortals, NeoOrigins) are detected automatically when present.
+Optional integrations are detected automatically when present: NeoPortals, NeoOrigins, Modonomicon, and on the 1.21.1 build Iron's Spells 'n Spellbooks.
 
 ## Open the Spell Builder
 

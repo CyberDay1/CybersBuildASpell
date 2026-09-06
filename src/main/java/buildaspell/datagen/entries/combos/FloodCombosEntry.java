@@ -34,7 +34,7 @@ public class FloodCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Geyser");
-        this.pageText("Where conjured water meets an upward shove across a broad footing, the ground erupts.\\\n\\\nA column of water blasts upward from the target, hurling every entity caught above it high into the air.\\\n\\\nThe jet is purely visual and leaves no water behind, making it a handy mobility tool or a brutal fall-trap.\\\n\\\nIncreased Area widens the eruption.");
+        this.pageText("Where conjured water meets an upward shove across a broad footing, the ground erupts.\\\n\\\nA column of water blasts upward from the target, hurling every entity caught above it high into the air and bruising it as the column bursts through. You are the one exception: the jet will not lift its own caster, so this is a trap to spring rather than a way to travel.\\\n\\\nThe jet leaves no water behind once the eruption passes.\\\n\\\nIncreased Area widens the eruption. Nullify spares the damage but still throws.");
     }
 
     @Override
