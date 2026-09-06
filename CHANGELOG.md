@@ -31,6 +31,7 @@ Fill's reach limit was acting as a wall of its own, so a room wider than the lim
 - A stack of Blank Runes fills one rune at a time: essence was recorded on the stack, so a pile charged together and then only one transformed, leaving the rest stuck at full. Runes stranded that way are cleared first, one for each essence you gather.
 - The 1.21.1 build names 1.21.1 exactly rather than everything below 1.22, so a newer game refuses it up front with a message naming the version it wants rather than loading it and crashing part-way through startup. The startup log also reports the mod's real version, having announced a hardcoded one that was wrong on every branch.
 - On Minecraft 26.2, Duration lengthens a summoned host again: summoned skeletons and vindicators ignored the modifier and always lasted the configured time. Vexes and the other Minecraft versions were unaffected.
+- The Arcane Altar enchants to level 255 rather than stopping at 20, which is what the guidebook and the creative tab already described. The per-enchantment settings in `general.toml` cap how far a level scales the bonus, not how high one may be bought, and the cost curve already priced levels past fifteen in netherite.
 - The creative search files one Build a Spell enchanted book per enchantment rather than one per level, and the mod's menus no longer look blurred, every centred heading having carried a drop shadow that doubled each letter a pixel down and to the right.
 
 ### Documentation
@@ -38,6 +39,7 @@ Fill's reach limit was acting as a wall of its own, so a room wider than the lim
 - The guidebook and the component reference are brought up to this release: Fill's reach limit and per-cast budget, Conjure's off-hand rule and block tag, Echo's and Double's share of the spell, Sunder's multiplier and what it does to an unarmored target, Tracking's single living target, and a summoned host that arrives armed and leaves nothing behind.
 - The mana-cost pages price repeats, in the guidebook and in the read-me, the documentation home page and the configuration reference alike: each further copy of an effect costs half again as much as the one before, and a modifier is priced against the effect it sits on. The configuration page points at the block tag rather than a Conjure block list.
 - The guidebook is identical on every Minecraft version. One version's copy still published combo recipes in full and described several mechanics it no longer had, among them a Cast Speed attribute that does not exist, a cross-dimensional Recall, Nullify stopping Slowness and Weakness, and a Rune that triggered on contact rather than on a timer.
+- The cross-mod reference gives mana regeneration per second rather than per tick, a twentyfold difference, and drops the mod's former name. The read-me names all seven delivery methods, Getting Started lists every optional integration, and the Geyser page no longer calls a combo that never lifts its caster a mobility tool.
 
 ## v1.0.2 — Fill knows what it is standing in
 
