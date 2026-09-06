@@ -1,6 +1,7 @@
 package buildaspell.events;
 
 import buildaspell.BuildASpell;
+import buildaspell.compat.IronsManaCompat;
 import buildaspell.mana.ManaHelper;
 import buildaspell.mana.PlayerManaData;
 import buildaspell.network.SyncPlayerManaPacket;
@@ -21,6 +22,12 @@ public class PlayerManaEvents {
         Player player = event.getEntity();
 
         if (player.level().isClientSide()) {
+            return;
+        }
+
+        // Iron's MagicManager already regenerates and syncs the pool we are spending out of, so
+        // running this too would refill it twice as fast as an Iron's caster's.
+        if (IronsManaCompat.isDeferring()) {
             return;
         }
 

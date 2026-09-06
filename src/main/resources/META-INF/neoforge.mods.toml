@@ -31,6 +31,17 @@ versionRange="[1.0.0,)"
 ordering="AFTER"
 side="BOTH"
 
+# Optional: when present, buildaspell spends out of Iron's mana pool instead of running a
+# second one. The range is deliberately open — Iron's stamps its MC version into the mod
+# version ("1.21.1-3.16.3"), so any numeric bound here would compare against 1.21.1 and reject
+# every build it was meant to allow.
+[[dependencies.buildaspell]]
+modId="irons_spellbooks"
+type="optional"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+
 # Optional: only used to render the in-game guidebook. All Modonomicon usage is
 # datagen-only, so the mod runs fine without it (you just get no guidebook).
 [[dependencies.buildaspell]]

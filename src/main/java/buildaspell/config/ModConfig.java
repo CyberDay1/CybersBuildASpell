@@ -35,6 +35,7 @@ public class ModConfig {
         public final ModConfigSpec.ConfigValue<List<? extends String>> conjureAllowedBlocks;
         public final ModConfigSpec.DoubleValue particleDensity;
         public final ModConfigSpec.BooleanValue lightningTransmutesBlocks;
+        public final ModConfigSpec.BooleanValue deferManaToIronsSpellbooks;
         public final ModConfigSpec.IntValue essenceRequired;
         public final ModConfigSpec.IntValue killEssence;
         public final ModConfigSpec.IntValue bossEssence;
@@ -86,6 +87,15 @@ public class ModConfig {
                             "fuse into glass (fulgurite). Vanilla bolt side effects (fire, mob conversions, copper",
                             "de-oxidising) always apply regardless. Nullified strikes never transmute blocks.")
                     .define("lightningTransmutesBlocks", true);
+            deferManaToIronsSpellbooks = builder.comment(
+                            "Set true to spend and refill out of Iron's Spells 'n Spellbooks' mana pool instead of",
+                            "running a second one alongside it. One pool, one number, one bar, and gear that grants",
+                            "irons_spellbooks:max_mana moves both mods' casting together. Iron's then owns both the",
+                            "size of the pool and the rate it refills, so buildaspell's own mana bar hides and the",
+                            "Arcane Altar stops offering Mana Pool and Mana Regeneration, which would have nothing",
+                            "left to act on. Spell Power is unaffected. Off by default so that installing Iron's",
+                            "does not change an existing world on its own. Has no effect when Iron's is absent.")
+                    .define("deferManaToIronsSpellbooks", false);
             builder.pop();
 
             builder.comment("Rune progression: how Blank Runes gather essence into Spell Runes,",
@@ -486,6 +496,19 @@ public class ModConfig {
 
     public static boolean lightningTransmutesBlocks() {
         return GENERAL == null || GENERAL.lightningTransmutesBlocks.get();
+    }
+
+    /**
+     * Whether to hand the mana pool over to Iron's Spellbooks when it is installed. Callers should
+     * go through {@code buildaspell.compat.IronsManaCompat#isDeferring()}, which also checks that
+     * Iron's is actually there.
+     *
+     * <p>Falls back to the setting's own default rather than to true: before the config loads there
+     * is no pack author's answer to honour, and the safe guess is the one that leaves buildaspell's
+     * mana behaving as it always has.
+     */
+    public static boolean deferManaToIronsSpellbooks() {
+        return GENERAL != null && GENERAL.deferManaToIronsSpellbooks.get();
     }
 
     public static int getManaPoolMaxLevel() {

@@ -1,6 +1,7 @@
 package buildaspell.events;
 
 import buildaspell.BuildASpell;
+import buildaspell.compat.IronsManaCompat;
 import buildaspell.config.ModConfig;
 import buildaspell.enchanting.EnchantmentCostManager;
 import buildaspell.item.BlankRuneItem;
@@ -123,8 +124,12 @@ public class ServerEvents {
             PacketDistributor.sendToPlayer(serverPlayer, SyncPlayerSpellDataPacket.fromPlayerData(spellData));
             PlayerSpellSlots spellSlots = serverPlayer.getData(ModAttachments.PLAYER_SPELL_SLOTS.get());
             PacketDistributor.sendToPlayer(serverPlayer, SyncPlayerSpellSlotsPacket.fromPlayerSlots(spellSlots));
-            PlayerManaData manaData = serverPlayer.getData(ModAttachments.PLAYER_MANA.get());
-            PacketDistributor.sendToPlayer(serverPlayer, new SyncPlayerManaPacket(manaData.getCurrentMana()));
+            // Nothing to send while Iron's owns the pool: it syncs its own MagicData, and our
+            // packet would only overwrite an attachment nothing reads.
+            if (!IronsManaCompat.isDeferring()) {
+                PlayerManaData manaData = serverPlayer.getData(ModAttachments.PLAYER_MANA.get());
+                PacketDistributor.sendToPlayer(serverPlayer, new SyncPlayerManaPacket(manaData.getCurrentMana()));
+            }
         }
     }
 

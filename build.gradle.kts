@@ -31,6 +31,14 @@ repositories {
         name = "Klikli"
         url = uri("https://dl.cloudsmith.io/public/klikli-dev/mods/maven/")
     }
+    // Iron's Spellbooks is All Rights Reserved, so its jar must never be checked in here the way
+    // libs/neoportals-1.0.0.jar is. Modrinth's maven serves it from the project page, which keeps
+    // the dependency remote, compile-only, and out of the repository.
+    maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+        content { includeGroup("maven.modrinth") }
+    }
 }
 
 neoForge {
@@ -75,6 +83,10 @@ dependencies {
     implementation("org.jetbrains:annotations:24.0.1")
     // NeoPortals optional dependency — provides see-through portal rendering when present
     compileOnly(files("libs/neoportals-1.0.0.jar"))
+    // Iron's Spellbooks optional dependency — when present, buildaspell hands its mana pool over to
+    // it rather than run a second one. compileOnly on purpose: nothing here may become a runtime
+    // requirement, and every call is gated behind buildaspell.compat.IronsManaCompat.
+    compileOnly("maven.modrinth:irons-spells-n-spellbooks:1.21.1-3.16.3")
     // Modonomicon guidebook
     implementation("com.klikli_dev:modonomicon-1.21.1-neoforge:${findProperty("modonomicon_version")}")
 }

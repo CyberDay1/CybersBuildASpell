@@ -70,6 +70,9 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
                 "The mana enchantments are only read from worn armor: place a helmet, chestplate, leggings or boots.");
         add("gui.buildaspell.arcane_altar.requires_main_hand",
                 "Spell Power is only read from your main hand: place a wand or a weapon.");
+        add("gui.buildaspell.arcane_altar.mana_deferred",
+                "Iron's Spells 'n Spellbooks is keeping your mana, so it sets both the size of the pool "
+                        + "and the rate it refills. The altar has no mana enchantment to sell you.");
         add("gui.buildaspell.arcane_altar.unknown_enchantment", "The altar does not offer that enchantment.");
 
         // --- GUI: Spell Builder ---

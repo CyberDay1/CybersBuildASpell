@@ -3,10 +3,9 @@ package buildaspell.commands;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import buildaspell.compat.IronsManaCompat;
 import buildaspell.mana.ManaHelper;
-import buildaspell.mana.PlayerManaData;
 import buildaspell.network.SyncPlayerManaPacket;
-import buildaspell.registry.ModAttachments;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -49,9 +48,18 @@ public class ManaCommand {
                 ;
     }
 
+    /**
+     * Iron's resyncs its own pool within ten ticks of any change, so a packet from us is only
+     * needed on the standalone path — where nothing else would tell the client.
+     */
+    private static void syncIfOwned(ServerPlayer player, float mana) {
+        if (!IronsManaCompat.isDeferring()) {
+            PacketDistributor.sendToPlayer(player, new SyncPlayerManaPacket(mana));
+        }
+    }
+
     private static int getMana(CommandContext<CommandSourceStack> context, ServerPlayer player) {
-        PlayerManaData manaData = player.getData(ModAttachments.PLAYER_MANA.get());
-        float currentMana = manaData.getCurrentMana();
+        float currentMana = ManaHelper.getCurrentMana(player);
         float maxMana = ManaHelper.getMaxMana(player);
 
         context.getSource().sendSuccess(
@@ -62,9 +70,8 @@ public class ManaCommand {
     }
 
     private static int setMana(CommandContext<CommandSourceStack> context, ServerPlayer player, float amount) {
-        PlayerManaData manaData = player.getData(ModAttachments.PLAYER_MANA.get());
-        manaData.setCurrentMana(amount);
-        PacketDistributor.sendToPlayer(player, new SyncPlayerManaPacket(manaData.getCurrentMana()));
+        ManaHelper.setCurrentMana(player, amount);
+        syncIfOwned(player, ManaHelper.getCurrentMana(player));
 
         context.getSource().sendSuccess(
                 () -> Component.literal("Set " + player.getName().getString() + "'s mana to " + String.format("%.1f", amount)),
@@ -74,10 +81,9 @@ public class ManaCommand {
     }
 
     private static int addMana(CommandContext<CommandSourceStack> context, ServerPlayer player, float amount) {
-        PlayerManaData manaData = player.getData(ModAttachments.PLAYER_MANA.get());
-        manaData.addMana(amount);
-        float newMana = manaData.getCurrentMana();
-        PacketDistributor.sendToPlayer(player, new SyncPlayerManaPacket(newMana));
+        ManaHelper.addMana(player, amount);
+        float newMana = ManaHelper.getCurrentMana(player);
+        syncIfOwned(player, newMana);
 
         context.getSource().sendSuccess(
                 () -> Component.literal("Added " + String.format("%.1f", amount) + " mana to " + player.getName().getString() + " (now at " + String.format("%.1f", newMana) + ")"),
@@ -91,8 +97,7 @@ public class ManaCommand {
         float manaRegen = ManaHelper.getManaRegen(player);
         float spellPower = ManaHelper.getSpellPower(player);
 
-        PlayerManaData manaData = player.getData(ModAttachments.PLAYER_MANA.get());
-        float currentMana = manaData.getCurrentMana();
+        float currentMana = ManaHelper.getCurrentMana(player);
 
         context.getSource().sendSuccess(
                 () -> Component.literal(player.getName().getString() + "'s Stats:\n" +

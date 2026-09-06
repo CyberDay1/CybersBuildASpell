@@ -1,8 +1,7 @@
 package buildaspell.client.gui;
 
+import buildaspell.compat.IronsManaCompat;
 import buildaspell.mana.ManaHelper;
-import buildaspell.mana.PlayerManaData;
-import buildaspell.registry.ModAttachments;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -52,6 +51,10 @@ public class ManaBarOverlay implements LayeredDraw.Layer {
     public void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         if (!visible) return;
 
+        // Iron's Spellbooks draws the bar for the pool we share with it; a second one alongside
+        // showing the same number reads as a bug.
+        if (IronsManaCompat.isDeferring()) return;
+
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
 
@@ -59,8 +62,7 @@ public class ManaBarOverlay implements LayeredDraw.Layer {
             return;
         }
 
-        PlayerManaData manaData = player.getData(ModAttachments.PLAYER_MANA.get());
-        float currentMana = manaData.getCurrentMana();
+        float currentMana = ManaHelper.getCurrentMana(player);
         float maxMana = ManaHelper.getMaxMana(player);
 
         displayedMana = Mth.lerp(SMOOTHING_SPEED, displayedMana, currentMana);

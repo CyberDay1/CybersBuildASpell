@@ -97,6 +97,20 @@ public class ArcaneAltarBlockEntity extends BlockEntity implements Container, Me
     }
 
     /**
+     * Whether the altar is selling an enchantment at all, before any question of what it is being
+     * put on. When buildaspell has handed its mana pool to Iron's Spellbooks, Iron's owns both the
+     * size of that pool and the rate it refills, so Mana Pool and Mana Regeneration have nothing
+     * left to act on; selling them would take XP and materials for an enchantment that cannot do
+     * anything. Spell Power is unaffected, since damage never went to Iron's.
+     */
+    public static boolean isEnchantmentOffered(ResourceLocation enchantmentId) {
+        if (MANA_POOL_ENCHANTMENT.equals(enchantmentId) || MANA_REGENERATION_ENCHANTMENT.equals(enchantmentId)) {
+            return !buildaspell.compat.IronsManaCompat.isDeferring();
+        }
+        return true;
+    }
+
+    /**
      * Whether a specific altar enchantment will actually do anything on a specific item. The
      * altar's three enchantments are each read from one place only (see
      * {@link buildaspell.mana.ManaHelper}): Spell Power off the main hand, Mana Pool and Mana
@@ -107,6 +121,7 @@ public class ArcaneAltarBlockEntity extends BlockEntity implements Container, Me
      */
     public static boolean isValidEnchantTarget(ResourceLocation enchantmentId, ItemStack stack) {
         if (enchantmentId == null || stack.isEmpty()) return false;
+        if (!isEnchantmentOffered(enchantmentId)) return false;
         if (SPELL_POWER_ENCHANTMENT.equals(enchantmentId)) return isMainHandTarget(stack);
         if (MANA_POOL_ENCHANTMENT.equals(enchantmentId) || MANA_REGENERATION_ENCHANTMENT.equals(enchantmentId)) {
             return stack.is(ItemTags.ARMOR_ENCHANTABLE);
@@ -117,6 +132,11 @@ public class ArcaneAltarBlockEntity extends BlockEntity implements Container, Me
 
     /** The player-facing reason an enchantment was refused, used by both the screen and the packet. */
     public static MutableComponent enchantTargetRequirement(ResourceLocation enchantmentId) {
+        // Asked before the pairing reasons: an enchantment that is not on sale at all should not be
+        // explained as though the wrong item were in the altar.
+        if (!isEnchantmentOffered(enchantmentId)) {
+            return Component.translatable("gui.buildaspell.arcane_altar.mana_deferred");
+        }
         if (SPELL_POWER_ENCHANTMENT.equals(enchantmentId)) {
             return Component.translatable("gui.buildaspell.arcane_altar.requires_main_hand");
         }

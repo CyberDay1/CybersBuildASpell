@@ -161,13 +161,17 @@ public class ArcaneAltarScreen extends AbstractContainerScreen<ArcaneAltarMenu> 
     }
 
     /**
-     * Greys a type button out when the placed item would never read that enchantment, and swaps its
-     * tooltip for the reason. With the altar empty every type stays offered so the player can price
-     * one up before committing an item.
+     * Greys a type button out when the placed item would never read that enchantment, or when the
+     * altar is not selling that enchantment at all, and swaps its tooltip for the reason. With the
+     * altar empty every type it does sell stays offered, so the player can price one up before
+     * committing an item.
      */
     private void updateTypeButton(Button button, ResourceLocation enchantmentId, Component description, ItemStack target) {
         if (button == null) return;
-        boolean usable = target.isEmpty() || ArcaneAltarBlockEntity.isValidEnchantTarget(enchantmentId, target);
+        // The empty-altar pass only excuses the pairing. An enchantment the altar is not selling at
+        // all stays greyed out whatever is or isn't in the slot.
+        boolean usable = ArcaneAltarBlockEntity.isEnchantmentOffered(enchantmentId)
+                && (target.isEmpty() || ArcaneAltarBlockEntity.isValidEnchantTarget(enchantmentId, target));
         button.active = usable;
         button.setTooltip(Tooltip.create(usable
                 ? description
@@ -204,6 +208,7 @@ public class ArcaneAltarScreen extends AbstractContainerScreen<ArcaneAltarMenu> 
     /** Whether the selected type is one the placed item will actually read (empty altar counts as OK). */
     private boolean pairingOk() {
         ItemStack target = menu.getSlot(0).getItem();
+        if (!ArcaneAltarBlockEntity.isEnchantmentOffered(selectedEnchantment)) return false;
         return target.isEmpty() || ArcaneAltarBlockEntity.isValidEnchantTarget(selectedEnchantment, target);
     }
 
