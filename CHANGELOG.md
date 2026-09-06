@@ -9,7 +9,7 @@ Fill's reach limit was acting as a wall of its own, so a room wider than the lim
 ### Changes
 
 - **Running out of reach no longer ends a Fill**: a layer that ran out to the limit used to count as one that had escaped into the open, and the cast stopped where it stood. Reaching the limit now only stops that one layer spreading.
-- **The reach limit is a distance in every direction, and a cast has a budget**: thirty blocks out, up and down from where the spell landed, and four thousand and ninety-six blocks placed at most. Both are server-configurable.
+- **The reach limit is a distance in every direction, and a cast has a budget**: thirty blocks out, up and down from where the spell landed, and 4,096 blocks placed in one cast at most. Both are server-configurable.
 - **Fill judges the surface by what is overhead, not by how far it got**: a layer closed in by walls is held however wide it is, and a hole in a ceiling is plugged on the way past. A ceiling the fill could never reach does not count as one, so a cast on the Nether's open lava flats places nothing.
 - **Conjure builds with the block in your off hand and never consumes it**: cobblestone in hand builds cobblestone, and mana is the whole cost. It used to copy whatever block the cast landed on, so the material changed with your aim.
 - **What Conjure may build with is the block tag `#buildaspell:conjurable`**: common ground material only, extendable by datapack. The `conjureAllowedBlocks` setting is gone, having matched a block's full name against a list of bare ones, so out of the box nothing matched.
@@ -29,10 +29,10 @@ Fill's reach limit was acting as a wall of its own, so a room wider than the lim
 - A large spell is saved whole. The effect chain and the delivery's modifiers are two separately limited lists, but saving sent both as one and the server measured it against the chain's limit alone, so the tail was dropped without a word and the loss only showed at the next login.
 - A full mana bar reads as full. Mana is sent to your client once a second and only when the figure has changed, but the comparison was against the figure at the start of that same second rather than against what your client held, so the last step of regeneration was never sent.
 - A stack of Blank Runes fills one rune at a time: essence was recorded on the stack, so a pile charged together and then only one transformed, leaving the rest stuck at full. Runes stranded that way are cleared first, one for each essence you gather.
-- The 1.21.1 build names 1.21.1 exactly rather than everything below 1.22, so a newer game refuses it up front with a message naming the version it wants rather than loading it and crashing part-way through startup. The startup log also reports the mod's real version, having announced a hardcoded one that was wrong on every branch.
+- The 1.21.1 build names 1.21.1 exactly rather than everything below 1.22, so a newer game refuses it up front with a message naming the version it wants rather than loading it and crashing part-way through startup. The startup log also reports the mod's real version instead of a hardcoded one that was wrong on every branch.
 - On Minecraft 26.2, Duration lengthens a summoned host again: summoned skeletons and vindicators ignored the modifier and always lasted the configured time. Vexes and the other Minecraft versions were unaffected.
 - The Arcane Altar enchants to level 255 rather than stopping at 20, which is what the guidebook and the creative tab already described. The per-enchantment settings in `general.toml` cap how far a level scales the bonus, not how high one may be bought, and the cost curve already priced levels past fifteen in netherite.
-- The creative search files one Build a Spell enchanted book per enchantment rather than one per level, and the mod's menus no longer look blurred, every centred heading having carried a drop shadow that doubled each letter a pixel down and to the right.
+- The creative search files one Build a Spell enchanted book per enchantment rather than one per level, and the mod's menus no longer look blurred: every centred heading carried a drop shadow that doubled each letter a pixel down and to the right.
 
 ### Documentation
 
