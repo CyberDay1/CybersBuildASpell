@@ -21,7 +21,7 @@ public class BuildASpell {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public BuildASpell(IEventBus modEventBus, ModContainer modContainer) {
-        LOGGER.info("BuildASpell initializing for 1.21.11");
+        LOGGER.info("BuildASpell {} initializing", modContainer.getModInfo().getVersion());
 
         // Config — split across a buildaspell/ folder; SERVER specs auto-sync to clients on login.
         ModConfig.init();
