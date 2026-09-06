@@ -2,7 +2,9 @@ package buildaspell.spell.execution;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -92,11 +94,21 @@ public final class FloodFill {
 
     /**
      * Pours into the space around {@code anchor} the way a liquid would: it settles to the bottom,
-     * then rises one layer at a time, and stops at the height where the space would spill out.
+     * then rises one layer at a time, and stops at the height where it comes up to the surface.
      *
-     * <p>So a hole in the ground fills to ground level and no further, and a sealed room fills to
-     * its ceiling. Casting somewhere genuinely open returns nothing — there is no container to
-     * fill, and the alternative is burying the landscape.
+     * <p>Each layer rises if it is held: either it closed against walls, or it ran past the reach
+     * limit but still has a roof over it. It stops where the layer both escapes the reach limit and
+     * has nothing overhead that this cast could ever reach, which is the point where it would stop
+     * filling anything and start burying the landscape. So a hole fills to ground level, a walled
+     * pen fills to the top of its wall, a room fills to its ceiling as far as {@code budget}
+     * carries it, and casting on open ground places nothing.
+     *
+     * <p>{@code maxRadius} is a reach limit, not a wall. A layer running out to it keeps filling
+     * upward — the old behaviour of treating that as a spill is what left a big room with only its
+     * floor covered. It is a limit in every direction, though, not just outward: see
+     * {@link #withinRadius}, which clamps Y by the same figure. And a room wide enough to clip a
+     * layer is wide enough that one layer of it eats most of {@code budget}, so a hall far wider
+     * than the reach fills as much of itself as one cast can carry, not the whole of it.
      */
     public static List<BlockPos> contained(Level level, BlockPos anchor, int maxRadius, int budget,
                                            Predicate<BlockPos> passable) {
@@ -134,32 +146,39 @@ public final class FloodFill {
                 }
             }
 
-            boolean spilled = false;
+            // Did this layer close against walls, or did it just run out of arm's length?
+            boolean clipped = false;
+            // Is any part of it out from under cover?
+            boolean openAbove = false;
+
             while (!queue.isEmpty()) {
                 BlockPos pos = queue.poll();
                 layer.add(pos);
+                if (!openAbove && uncovered(level, pos, anchor, maxRadius)) {
+                    openAbove = true;
+                }
 
                 for (Direction dir : HORIZONTAL) {
                     BlockPos next = pos.relative(dir);
-                    if (!level.isLoaded(next) || !passable.test(next)) {
+                    if (!withinRadius(next, anchor, maxRadius)) {
+                        // Out of reach is not out of bounds. The radius caps how much one cast can
+                        // touch, so the layer stops growing here — but only note that there was
+                        // more space we could not get to, and only if there really was.
+                        clipped |= level.isLoaded(next) && passable.test(next);
                         continue;
                     }
-                    if (!withinRadius(next, anchor, maxRadius)) {
-                        // The layer runs past everything we can see, so it is not enclosed at this
-                        // height. Whatever we have already placed below stays; this layer does not.
-                        spilled = true;
-                        break;
-                    }
-                    if (seen.add(next)) {
+                    if (level.isLoaded(next) && passable.test(next) && seen.add(next)) {
                         queue.add(next);
                     }
                 }
-                if (spilled) {
-                    break;
-                }
             }
 
-            if (spilled) {
+            // A layer that closed against walls is held, however wide it turned out to be, so it
+            // gets filled and the level rises. One that ran out of reach might still be held just
+            // out of sight, so ask what is overhead instead: a roof means we are inside something
+            // and should keep going, nothing overhead means the fill has come up out of whatever it
+            // was in and is about to start burying the landscape. That is where it stops.
+            if (clipped && openAbove) {
                 break;
             }
 
@@ -190,6 +209,37 @@ public final class FloodFill {
             return;
         }
         pending.computeIfAbsent(pos.getY(), y -> new HashSet<>()).add(pos);
+    }
+
+    /**
+     * Whether this cell has nothing over it that the cast could ever reach.
+     *
+     * <p>A ceiling further up than the fill can rise is not holding anything, so it does not count
+     * as cover. That is the difference between an enclosed hall and an open Nether plain, whose only
+     * roof is bedrock the better part of a hundred blocks up: asking the world where its surface is
+     * says "covered" everywhere under that roof, and the fill would never stop.
+     *
+     * <p>Leaves are not a roof either, so a cast under a tree still knows it is standing outside.
+     *
+     * <p>On its own this cannot tell a wide open pit from flat ground — stand at the bottom of a
+     * quarry and there is no reachable roof there either. It is only meaningful alongside whether
+     * the layer was held by walls, which is how {@link #contained} uses it.
+     */
+    private static boolean uncovered(Level level, BlockPos pos, BlockPos anchor, int maxRadius) {
+        // The cast cannot place above this line, so it cannot be held by anything above it either.
+        int top = anchor.getY() + maxRadius;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int y = pos.getY() + 1; y <= top; y++) {
+            cursor.set(pos.getX(), y, pos.getZ());
+            if (!level.isLoaded(cursor)) {
+                return false;
+            }
+            BlockState state = level.getBlockState(cursor);
+            if (state.blocksMotion() && !state.is(BlockTags.LEAVES)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean withinRadius(BlockPos pos, BlockPos anchor, int maxRadius) {

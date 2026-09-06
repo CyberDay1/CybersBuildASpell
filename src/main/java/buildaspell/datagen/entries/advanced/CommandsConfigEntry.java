@@ -32,7 +32,7 @@ public class CommandsConfigEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Server Configuration");
-        this.pageText("The server config lives in a 'buildaspell' folder, split across general.toml, deliveries.toml, effects.toml, modifiers.toml, and wands.toml.\\\n\\\nBetween them they control global settings: the mana cost multiplier, default spell power, per-delivery/effect/modifier toggles and cost multipliers, damage multipliers for offensive effects, the maximum number of portals per player, and the list of blocks allowed for Conjure.\\\n\\\nThese server values sync to clients automatically on login.");
+        this.pageText("The server config lives in a 'buildaspell' folder, split across general.toml, deliveries.toml, effects.toml, modifiers.toml, and wands.toml.\\\n\\\nBetween them they control global settings: the mana cost multiplier, default spell power, per-delivery/effect/modifier toggles and cost multipliers, damage multipliers for offensive effects, and the maximum number of portals per player.\\\n\\\nThese server values sync to clients automatically on login.\\\n\\\nWhat Conjure is allowed to build with is not a config value: it is the block tag buildaspell:conjurable, so a datapack can add its own stone types to it.");
     }
 
     @Override

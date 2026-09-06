@@ -37,7 +37,7 @@ public class PortalNamingScreen extends Screen {
         addRenderableWidget(nameField);
         // Route keyboard focus to the field at the Screen level. Setting the widget's own focus
         // flag alone leaves the Screen's focused listener null, so charTyped/keyPressed are
-        // dispatched to nothing — which is why the box could be clicked but never typed into.
+        // dispatched to nothing â which is why the box could be clicked but never typed into.
         setInitialFocus(nameField);
 
         addRenderableWidget(Button.builder(Component.literal("Confirm"), button -> {
@@ -51,6 +51,12 @@ public class PortalNamingScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("Cancel"), button -> {
             onClose();
         }).bounds(this.width / 2 + 5, this.height / 2 + 20, 100, 20).build());
+    }
+
+    /** See {@link SpellBuilderScreen#extractBlurredBackground} — this screen paints its own backdrop. */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op
     }
 
     @Override
@@ -70,8 +76,8 @@ public class PortalNamingScreen extends Screen {
         graphics.fill(fx, fy, fx + 1, fy + fh, COLOR_BORDER);
         graphics.fill(fx + fw - 1, fy, fx + fw, fy + fh, COLOR_BORDER);
 
-        graphics.centeredText(this.font, "Name This Rift", this.width / 2, this.height / 2 - 40, COLOR_HEADER);
-        graphics.centeredText(this.font, "Enter Portal Name:", this.width / 2, this.height / 2 - 28, COLOR_TEXT);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Name This Rift", this.width / 2, this.height / 2 - 40, COLOR_HEADER);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Enter Portal Name:", this.width / 2, this.height / 2 - 28, COLOR_TEXT);
     }
 
     @Override

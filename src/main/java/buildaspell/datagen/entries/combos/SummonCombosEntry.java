@@ -27,7 +27,7 @@ public class SummonCombosEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Skeletons & Vindicators");
-        this.pageText("Call with the storm's own fury and a squad of Skeleton archers rises to your banner.\\\n\\\nPour raw, widened power into a violent calling and ranks of allied Vindicators march out instead.\\\n\\\nBoth armies fight for you, and both take real strength to raise: weak workings summon nothing.");
+        this.pageText("Call with the storm's own fury and a company of Skeletons rises to your banner, some drawing bows and some swords.\\\n\\\nPour raw, widened power into a violent calling and ranks of allied Vindicators march out instead.\\\n\\\nBoth armies fight for you, and both take real strength to raise: weak workings summon nothing.");
     }
 
     @Override

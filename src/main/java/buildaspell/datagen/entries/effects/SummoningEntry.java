@@ -20,7 +20,7 @@ public class SummoningEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Summon (50 mana)");
-        this.pageText("The Summon effect conjures an allied entity at the target location.\\\n\\\nThe type of entity summoned depends on the other effects and modifiers in the spell.\\\n\\\nOn its own, Summon produces a basic ally.\\\n\\\nCombined with specific effects, it can summon Iron Golems, Vexes, Skeletons, or Vindicators.");
+        this.pageText("The Summon effect conjures an allied entity at the target location.\\\n\\\nThe type of entity summoned depends on the other effects and modifiers in the spell.\\\n\\\nOn its own, Summon produces a basic ally.\\\n\\\nCombined with specific effects, it can summon Iron Golems, Vexes, Skeletons, or Vindicators.\\\n\\\nSummoned skeletons carry a bow or a sword, and vindicators an axe. Every summon is conjured out of mana, weapon and all, so none of them leaves behind loot or experience when it dies.");
 
         this.page("charm", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())

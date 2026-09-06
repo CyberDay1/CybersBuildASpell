@@ -26,7 +26,7 @@ public class ManaBasicsEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Mana Cost Formula");
-        this.pageText("Each spell's mana cost is calculated by adding the base costs of the delivery method, all effects, and all modifiers.\\\n\\\nThe total is then multiplied by the server's global cost multiplier and any per-component cost multipliers set in the config.");
+        this.pageText("Each spell's mana cost starts with the base prices of its delivery method, its effects, and its modifiers.\\\n\\\nRepeats cost more each time: a second copy of the same effect is charged half again as much as the first, and a third half again as much as that. Effects are counted across the whole spell, but a modifier is counted only against the effect it sits on, so spreading a modifier over several effects comes cheaper than piling it onto one.\\\n\\\nEcho and Double are charged as a share of everything else the spell costs rather than a price of their own.\\\n\\\nThe total is then multiplied by the server's global cost multiplier and any per-component cost multipliers set in the config.");
 
         this.page("recovery", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())

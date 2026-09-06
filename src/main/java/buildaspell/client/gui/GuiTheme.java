@@ -1,6 +1,9 @@
 package buildaspell.client.gui;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 /**
@@ -44,6 +47,23 @@ public final class GuiTheme {
     public static final int SLOT_BORDER  = 0xFF7E54B8;
     /** Translucent amethyst hover wash. */
     public static final int HOVER        = 0x50AE74E8;
+
+    // ── Text ────────────────────────────────────────────────────────────
+    /**
+     * Centred text with the drop shadow OFF. Vanilla's {@code GuiGraphicsExtractor.centeredText}
+     * delegates to the 5-arg {@code text(...)}, which passes {@code dropShadow = true}; under this
+     * palette's small bold headers that doubles every glyph a pixel down-right, which reads as blur
+     * rather than as depth. Named so nobody reaches for the vanilla one by muscle memory.
+     * Centring mirrors vanilla — visual order, so bidi text measures the same.
+     */
+    public static void centeredTextNoShadow(GuiGraphicsExtractor g, Font font, Component text, int cx, int y, int color) {
+        FormattedCharSequence visual = text.getVisualOrderText();
+        g.text(font, visual, cx - font.width(visual) / 2, y, color, false);
+    }
+
+    public static void centeredTextNoShadow(GuiGraphicsExtractor g, Font font, String text, int cx, int y, int color) {
+        g.text(font, text, cx - font.width(text) / 2, y, color, false);
+    }
 
     // ── Colour maths ────────────────────────────────────────────────────
     public static int lerpColor(int a, int b, float t) {

@@ -12,11 +12,11 @@ Spells in Build a Spell are assembled from three kinds of components:
 - **Effects** — what the spell does (damage, status effects, terrain manipulation, summons, utility, and more).
 - **Modifiers** — how the effects behave (more power, larger area, longer duration, chaining, piercing, bouncing, delays, and shape modifiers).
 
-Mana cost is the sum of every component, scaled by your Spell Power. Certain combinations of components form **combos** that override their individual behavior to produce a single, more powerful spell — black holes, tornadoes, Void Rifts (dialable, linkable portals), summon swarms, and more.
+Mana cost is the sum of every component, scaled by your Spell Power, with repeats priced higher each time: a second copy of an effect, or a second stack of a modifier on the same effect, costs more than the first. Double and Echo are the exception to the sum: each is charged a share of what the rest of the spell costs, because each one re-scales everything the spell does rather than adding a fixed amount to it. Certain combinations of components form **combos** that override their individual behavior to produce a single, more powerful spell — black holes, tornadoes, Void Rifts (dialable, linkable portals), summon swarms, and more.
 
 ## Features
 
-- **76 spell components**: 7 delivery methods, 47 effects, and 22 modifiers, freely combinable up to 30 components per spell.
+- **76 spell components**: 7 delivery methods, 47 effects, and 22 modifiers, freely combinable up to 100 entries in the effect chain plus 100 modifiers on the delivery itself, and a server can set both limits higher or lower.
 - **19 spell combos**: special component combinations that unlock unique behavior (Black Hole, Tornado, Void Rift, Fortress, Meteor Strike, Blizzard, summon variants, and more).
 - **Spell Builder GUI**: drag-and-drop component crafting with a grouped palette and live mana-cost feedback.
 - **Per-spell projectile visuals**: choose a projectile's color, shape, and trail particle directly in the builder.
@@ -32,16 +32,16 @@ A single jar is published per Minecraft line. Pick the one that matches your ins
 
 | Minecraft | Loader | Java | Notes |
 |---|---|---|---|
-| 1.21.1 | NeoForge 21.1.x | 21 | `1.21.1` branch |
-| 26.1.x | NeoForge 26.1.x | 25 | `master` branch |
-| 26.2 | NeoForge 26.2.0.0-beta | 25 | `26.2` branch — in-game guidebook temporarily disabled until Modonomicon ships a 26.2 build |
+| 1.21.1 | NeoForge 21.1.224+ | 21 | `1.21.1` branch |
+| 26.1.2+ | NeoForge 26.1.2+ | 25 | `master` branch |
+| 26.2 | NeoForge 26.2.0.77+ | 25 | `26.2` branch |
 
 > The 1.21.11 line is not supported.
 
 ## Installation
 
 1. Install [NeoForge](https://neoforged.net/) for your Minecraft version.
-2. Download the jar matching your Minecraft version (`buildaspell-1.0.1-mc<version>.jar`).
+2. Download the jar matching your Minecraft version (`buildaspell-1.0.3-mc<version>.jar`).
 3. Drop it into your `mods/` folder.
 
 Optional integrations are picked up automatically when present (see below).
@@ -71,6 +71,7 @@ Full docs live in [`docs/`](docs/) and are published as a site via GitHub Pages.
 ## Integrations
 
 - **NeoOrigins** (optional) — a public casting API lets origin powers build and cast spells, charging the origin system's own resource. See `CROSS_MOD_API.md`.
+- **Iron's Spells 'n Spellbooks** (optional, 1.21.1 only) — set `deferManaToIronsSpellbooks` in `general.toml` to spend and refill out of Iron's mana pool rather than running a second one beside it. Off by default. See [Configuration](docs/configuration.md#irons-spells-n-spellbooks).
 
 ## Configuration
 

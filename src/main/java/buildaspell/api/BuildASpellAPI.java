@@ -108,7 +108,7 @@ public final class BuildASpellAPI {
      * ({@code null} + log).
      *
      * <p>The same rules the in-game builder enforces apply: the list is capped at
-     * {@link Spell#MAX_COMPONENTS} and a non-stackable modifier already present is silently
+     * {@link Spell#maxComponents()} and a non-stackable modifier already present is silently
      * dropped (both handled by {@link Spell#addComponent}), so an origin-built spell can never
      * exceed what a player could assemble by hand.
      *

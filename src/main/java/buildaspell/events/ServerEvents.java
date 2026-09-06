@@ -77,6 +77,7 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         SpellLootingTracker.tick();
+        SpellLootingEvents.closeLootingWindow();
     }
 
     @SubscribeEvent
@@ -193,6 +194,29 @@ public class ServerEvents {
         }
         if (buildaspell.spell.MobSpellState.isPacified(mob)
                 || buildaspell.spell.MobSpellState.isSummonerOf(mob, newTarget)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * A summon is conjured out of mana, so there is nothing on it to take: killing one yields no
+     * items and no experience. Without this every summoning spell doubled as a way to manufacture
+     * loot - an Iron Golem paid out iron ingots and poppies for a spell you could simply cast again.
+     */
+    @SubscribeEvent
+    public static void onSummonDrops(net.neoforged.neoforge.event.entity.living.LivingDropsEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.Mob mob
+                && buildaspell.spell.MobSpellState.isSummon(mob)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** Companion to {@link #onSummonDrops}: a summon is worth no experience either. */
+    @SubscribeEvent
+    public static void onSummonExperienceDrop(
+            net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.Mob mob
+                && buildaspell.spell.MobSpellState.isSummon(mob)) {
             event.setCanceled(true);
         }
     }

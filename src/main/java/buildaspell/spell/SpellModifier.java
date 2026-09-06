@@ -18,8 +18,11 @@ public enum SpellModifier implements StringRepresentable {
     NULLIFY("nullify", 5.0f, false),
     GENTLENESS("gentleness", 10.0f, false),
     FORTUNATE_SON("fortunate_son", 25.0f, true),
-    DOUBLE("double", 50.0f, true),
-    ECHO("echo", 40.0f, true),
+    // Double and Echo charge no flat price: each stack raises the whole spell's cost by a
+    // percentage instead (their "totalCostMultiplier"), because each one re-scales the whole
+    // spell's output rather than adding a fixed amount of work to it.
+    DOUBLE("double", 0.0f, true, 1.8),
+    ECHO("echo", 0.0f, true, 1.8),
     PROLONGED("prolonged", 18.0f, true),
     DELAY("delay", 8.0f, true),
     CHAIN("chain", 30.0f, true),
@@ -46,11 +49,17 @@ public enum SpellModifier implements StringRepresentable {
     private final String id;
     private final float baseCost;
     private final boolean stackable;
+    private final double totalCostMultiplier;
 
     SpellModifier(String id, float baseCost, boolean stackable) {
+        this(id, baseCost, stackable, 1.0);
+    }
+
+    SpellModifier(String id, float baseCost, boolean stackable, double totalCostMultiplier) {
         this.id = id;
         this.baseCost = baseCost;
         this.stackable = stackable;
+        this.totalCostMultiplier = totalCostMultiplier;
     }
 
     @Override
@@ -64,6 +73,16 @@ public enum SpellModifier implements StringRepresentable {
 
     public boolean isStackable() {
         return stackable;
+    }
+
+    /**
+     * What one stack of this multiplies the spell's whole mana cost by, before the server config has
+     * its say. 1.0 - every modifier but Double and Echo - means it charges its flat price and nothing
+     * more. This is the shipped default the config setting of the same name is seeded from, and the
+     * number used when there is no server config to read, so the two can never disagree.
+     */
+    public double getTotalCostMultiplier() {
+        return totalCostMultiplier;
     }
 
     @Nullable

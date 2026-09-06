@@ -33,6 +33,12 @@ public class AbilityRingScreen extends Screen {
         super(Component.literal("Ability Ring"));
     }
 
+    /** See {@link SpellBuilderScreen#extractBlurredBackground} — this screen paints its own backdrop. */
+    @Override
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        // intentionally no-op
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int transparency = (int) (ModConfig.client().abilityRingTransparency.get() * 255);
@@ -191,29 +197,29 @@ public class AbilityRingScreen extends Screen {
                 }
             } else {
                 centerPanel(graphics, centerX, centerY - 16, centerY + 28, 52);
-                graphics.centeredText(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("Empty Slot " + (hoveredSlot + 1)).withStyle(ChatFormatting.GRAY),
                         centerX, centerY - 10, 0xFFFFFFFF);
-                graphics.centeredText(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("No spell configured").withStyle(ChatFormatting.DARK_GRAY),
                         centerX, centerY + 5, 0xFF888888);
-                graphics.centeredText(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("ESC to close"),
                         centerX, centerY + 20, 0xFF888888);
             }
         } else {
             centerPanel(graphics, centerX, centerY - 16, centerY + 22, 46);
-            graphics.centeredText(font,
+            GuiTheme.centeredTextNoShadow(graphics, font,
                     Component.literal("Select a Spell"),
                     centerX, centerY - 10, 0xFFFFFFFF);
-            graphics.centeredText(font,
+            GuiTheme.centeredTextNoShadow(graphics, font,
                     Component.literal("ESC to close"),
                     centerX, centerY + 10, 0xFF888888);
         }
     }
 
     private void centerPanel(GuiGraphicsExtractor graphics, int cx, int top, int bottom, int halfWidth) {
-        // Amethyst frame over a teal-obsidian body — the shared panel language.
+        // Amethyst frame over a teal-obsidian body â the shared panel language.
         roundedRect(graphics, cx - halfWidth - 1, top - 1, cx + halfWidth + 1, bottom + 1, 6, 0x90AE74E8);
         roundedGradient(graphics, cx - halfWidth, top, cx + halfWidth, bottom, 6, 0xF0153038, 0xF00A1518);
     }

@@ -32,7 +32,7 @@ public class PowerScaleEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Fortunate Son (25 mana)");
-        this.pageText("Fortunate Son enriches what your spells yield.\\\n\\\nOn Break, it applies Fortune to the broken block, yielding more drops from ores and other fortune-affected blocks.\\\n\\\nOn Reap, it adds bonus crop drops the same way.\\\n\\\nOn damage spells, it acts as Looting: creatures slain by the spell drop extra loot. Players are left alone — what they drop is their own belongings, not rolled loot.\\\n\\\nStackable: each stack raises the fortune and looting level, up to a cap of three.\\\n\\\nBest combined with Break and Increased Area for efficient mining.");
+        this.pageText("Fortunate Son enriches what your spells yield.\\\n\\\nOn Break, it applies Fortune to the broken block, yielding more drops from ores and other fortune-affected blocks.\\\n\\\nOn Reap, it adds bonus crop drops the same way.\\\n\\\nOn damage spells, it acts as Looting: creatures slain by the spell roll extra loot, exactly as a Looting weapon would. What a creature is guaranteed to drop is not multiplied, and players are left alone entirely — what they drop is their own belongings, not rolled loot.\\\n\\\nStackable: each stack raises the fortune and looting level, and what stops you is the price rather than a ceiling. Every repeat costs half as much again as the one before it, so a fourth Fortunate Son costs over three times what a single one does and the climb only steepens from there. Your mana runs out long before the limit does.\\\n\\\nBest combined with Break and Increased Area for efficient mining.");
     }
 
     @Override

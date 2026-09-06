@@ -18,7 +18,9 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
     @Override
     protected void addTranslations() {
         // Keybinds
-        add("key.categories.buildaspell", "Build a Spell");
+        // 26.x derives the category translation key from the registered Identifier
+        // (buildaspell:spells) as key.category.<namespace>.<path>.
+        add("key.category.buildaspell.spells", "Build a Spell");
         add("key.buildaspell.ability_ring", "Open Ability Ring");
         add("key.buildaspell.cast_spell", "Cast Spell");
         add("key.buildaspell.spell_builder", "Open Spell Builder");
@@ -54,6 +56,9 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         // Blocks
         add("block.buildaspell.arcane_altar", "Arcane Altar");
         add("block.buildaspell.spell_light", "Spell Light");
+        // 26.x BlockItems built with Item.Properties.setId resolve their tooltip via the
+        // item.* key rather than the block.* key, so register it explicitly.
+        add("item.buildaspell.arcane_altar", "Arcane Altar");
         add("container.buildaspell.arcane_altar", "Arcane Altar");
 
         // Creative tab
@@ -97,6 +102,8 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         add("gui.buildaspell.spell_builder.require_effect", "Please add at least one effect!");
         add("gui.buildaspell.spell_builder.modifier_no_effect", "%s has no effect on %s — not added.");
         add("gui.buildaspell.spell_builder.modifier_no_delivery", "%s needs a projectile delivery — not added.");
+        add("gui.buildaspell.spell_builder.chain_full", "This spell already holds %s effects and modifiers — not added.");
+        add("gui.buildaspell.spell_builder.delivery_full", "The delivery already holds %s modifiers — not added.");
         add("gui.buildaspell.spell_builder.spell_saved", "Spell saved to slot %s!");
         add("gui.buildaspell.spell_builder.no_export", "No spell to export!");
         add("gui.buildaspell.spell_builder.exported", "Spell exported:");

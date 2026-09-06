@@ -32,7 +32,7 @@ public class SpellBuilderEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Mana Cost Display");
-        this.pageText("The Spell Builder shows the total mana cost of your current spell configuration in real time.\\\n\\\nAs you add or remove components, the cost updates automatically.\\\n\\\nThe cost accounts for all base costs, modifiers, and any server-configured cost multipliers.\\\n\\\nSpells can have up to 30 components.");
+        this.pageText("The Spell Builder shows the total mana cost of your current spell configuration in real time.\\\n\\\nAs you add or remove components, the cost updates automatically.\\\n\\\nThe cost accounts for all base costs, modifiers, and any server-configured cost multipliers.\\\n\\\nA spell holds up to a hundred entries in its effect chain, counting each effect and each modifier attached to one, and a hundred more modifiers on the delivery itself. Your server can set both limits to something else. The builder tells you when one is full.");
     }
 
     @Override

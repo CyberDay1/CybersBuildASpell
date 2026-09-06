@@ -31,8 +31,8 @@ public class SpecialEntry extends EntryProvider {
         this.page("double", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
-        this.pageTitle("Double (50 mana)");
-        this.pageText("Double adds an extra projectile to Cast and Tracking spells.\\\n\\\nStackable: each stack fires another projectile alongside the first.\\\n\\\nAt 50 mana per stack, it is the most expensive modifier in the game.\\\n\\\nUnlike Echo, which re-casts the spell after a delay, Double delivers all its projectiles in the same instant.");
+        this.pageTitle("Double (+80% of the spell)");
+        this.pageText("Double adds an extra projectile to Cast and Tracking spells.\\\n\\\nStackable: each stack fires another projectile alongside the first.\\\n\\\nDouble asks for no set amount of mana. It charges four fifths of whatever the rest of the spell costs, because a second projectile doubles everything that spell does: cheap on a small spell, and never cheap on a large one. Stacking it compounds the same way.\\\n\\\nUnlike Echo, which re-casts the spell after a delay, Double delivers all its projectiles in the same instant.");
 
         this.page("leech", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
@@ -44,7 +44,7 @@ public class SpecialEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Sunder (25 mana)");
-        this.pageText("Sunder adds bonus damage that scales with how much armor the target is wearing.\\\n\\\nStackable.\\\n\\\nBecause spell damage already ignores armor, Sunder is your anti-tank tool: the more heavily armored the foe, the harder it bites.\\\n\\\nIt does little against unarmored targets.");
+        this.pageText("Sunder makes the spell hit harder the more armor its target is wearing. A foe in full diamond suffers the whole increase, a lightly armored one only part of it.\\\n\\\nStackable, but it levels off: further copies keep adding, and stop once the spell is doing three times what it otherwise would.\\\n\\\nBecause spell damage already ignores armor, Sunder is your anti-tank tool: the more heavily armored the foe, the harder it bites.\\\n\\\nIt does nothing at all against an unarmored target.");
 
         this.page("return", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
