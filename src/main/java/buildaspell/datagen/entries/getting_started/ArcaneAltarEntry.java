@@ -22,7 +22,7 @@ public class ArcaneAltarEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Arcane Altar");
-        this.pageText("The Arcane Altar is the enchanting station for Build-A-Spell.\\\n\\\nUnlike the vanilla Enchanting Table, the Arcane Altar supports three unique enchantments with no level cap by default: server owners can set a cap for each enchantment in the config.");
+        this.pageText("The Arcane Altar is the enchanting station for Build-A-Spell.\\\n\\\nUnlike the vanilla Enchanting Table, the Arcane Altar supports three unique enchantments with no level cap: each runs to level 255. The per-enchantment settings in the config decide how far a level keeps scaling its bonus, not how high one may be bought.");
 
         this.page("enchanting", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())

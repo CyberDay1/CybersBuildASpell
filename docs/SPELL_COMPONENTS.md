@@ -104,7 +104,7 @@ for authoring components from a datapack.
 ## Base Mechanics
 
 - **Base Range**: 5.0 blocks (increased by the Increased Area modifier)
-- **Mana Cost**: sum of delivery + all effects + all modifiers (modified by the Spell Power stat). Repeats are priced higher each time: every further copy of the same effect, and every further stack of the same modifier on one effect, costs 1.5x the one before it. Both rates are server-configurable, and 1.0 restores flat pricing. `double` and `echo` sit outside the sum: each stack is charged 80% of what the spell costs so far (`totalCostMultiplier`, 1.8), applied after everything else is priced, so stacks compound and neither is affected by the repeat growth
+- **Mana Cost**: sum of delivery + all effects + all modifiers, reduced by a held wand's discount. Repeats are priced higher each time: every further copy of the same effect, and every further stack of the same modifier on one effect, costs 1.5x the one before it. Both rates are server-configurable, and 1.0 restores flat pricing. `double` and `echo` sit outside the sum: each stack is charged 80% of what the spell costs so far (`totalCostMultiplier`, 1.8), applied after everything else is priced, so stacks compound and neither is affected by the repeat growth
 - **Effect Execution**: all effects execute sequentially at the determined origin point
 - **Spell Power Stat**: obtained from enchantments; affects damage/healing amounts and projectile strength
 - **Projectiles**: Cast and Tracking deliveries spawn glowing light orb projectiles with no gravity, a 200 tick lifetime, flame particles, and proper collision detection
@@ -143,7 +143,7 @@ Spell Power and mana come from two sources:
   - **Mana Pool**: Increases maximum mana. Read from worn armor.
   - **Mana Regeneration**: Increases mana regeneration rate. Read from worn armor.
   - **Spell Power**: Directly increases spell damage output. Read from the item in your main hand (a weapon or a wand).
-  - Each enchantment only counts from the slots listed above. An off-hand item or a second held wand never adds to the total, so only one wand's Spell Power applies at a time.
+  - Each enchantment only counts from the slots listed above: an off-hand item never adds its enchantments to the total. The held-wand bonus below is separate, read from either hand with the better wand winning.
 - **Holding a wand**: higher-tier wands grant bonus Spell Power while held (and a mana-cost discount). See the wand progression in-game.
 
 ## Effect Interactions

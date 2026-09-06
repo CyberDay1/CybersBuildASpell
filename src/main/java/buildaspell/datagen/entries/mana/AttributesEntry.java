@@ -20,7 +20,7 @@ public class AttributesEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Pool & Regeneration");
-        this.pageText("Mana Pool determines your maximum mana capacity (default: 100).\\\n\\\nMana Regen controls how quickly mana restores (default: 5/sec).\\\n\\\nBoth can be increased through enchantments at the Arcane Altar and are exposed as entity attributes for cross-mod compatibility.");
+        this.pageText("Mana Pool determines your maximum mana capacity (default: 100).\\\n\\\nMana Regen controls how quickly mana restores (default: 5/sec).\\\n\\\nBoth can be increased through enchantments at the Arcane Altar and are exposed as entity attributes for cross-mod compatibility. If the server has handed the mana pool to another magic mod, that mod sets both instead and the altar stops offering the two enchantments.");
 
         this.page("power_speed", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())

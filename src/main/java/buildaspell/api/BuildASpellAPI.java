@@ -160,7 +160,7 @@ public final class BuildASpellAPI {
         return spell;
     }
 
-    /** The live delivery-method ids (rune, sight, self, cast, tracking). */
+    /** The live delivery-method ids (rune, sight, self, cast, tracking, touch, trap). */
     public static List<String> deliveryIds() {
         return Arrays.stream(DeliveryMethod.values()).map(DeliveryMethod::getSerializedName).toList();
     }
