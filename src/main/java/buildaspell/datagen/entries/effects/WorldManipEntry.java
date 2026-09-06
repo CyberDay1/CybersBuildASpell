@@ -20,7 +20,7 @@ public class WorldManipEntry extends EntryProvider {
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
         this.pageTitle("Break & Conjure");
-        this.pageText("Break (40 mana) destroys the targeted block, dropping it as an item. It also clears spell light, which nothing else can mine.\\\n\\\nConjure (25 mana) places a block at the target location from a configurable list of allowed blocks (default: stone, cobblestone, blackstone, dirt, grass). It builds into air and into anything a block can normally replace: light, grass, snow and water.\\\n\\\nBoth scale with Increased Area for multi-block operations.");
+        this.pageText("Break (40 mana) destroys the targeted block, dropping it as an item. It also clears spell light, which nothing else can mine.\\\n\\\nConjure (25 mana) builds with whatever block you hold in your off hand, so long as it is common ground material: stone and its variants, dirt, sand, gravel, clay, sandstone, and the nether and end equivalents. Hold nothing, or hold something with a price on it, and you get stone. The held block is never used up, mana is the whole cost. Conjure builds into air and into anything a block can normally replace: light, grass, snow and water.\\\n\\\nBoth scale with Increased Area for multi-block operations.");
 
         this.page("light_water", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())

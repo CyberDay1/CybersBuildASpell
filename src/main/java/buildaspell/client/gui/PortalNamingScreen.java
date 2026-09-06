@@ -53,6 +53,12 @@ public class PortalNamingScreen extends Screen {
         }).bounds(this.width / 2 + 5, this.height / 2 + 20, 100, 20).build());
     }
 
+    /** See {@link SpellBuilderScreen#renderBlurredBackground} — COLOR_SCRIM already hides the world. */
+    @Override
+    protected void renderBlurredBackground(float partial) {
+        // intentionally no-op
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -70,8 +76,8 @@ public class PortalNamingScreen extends Screen {
         graphics.fill(fx, fy, fx + 1, fy + fh, COLOR_BORDER);
         graphics.fill(fx + fw - 1, fy, fx + fw, fy + fh, COLOR_BORDER);
 
-        graphics.drawCenteredString(this.font, "Name This Rift", this.width / 2, this.height / 2 - 40, COLOR_HEADER);
-        graphics.drawCenteredString(this.font, "Enter Portal Name:", this.width / 2, this.height / 2 - 28, COLOR_TEXT);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Name This Rift", this.width / 2, this.height / 2 - 40, COLOR_HEADER);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Enter Portal Name:", this.width / 2, this.height / 2 - 28, COLOR_TEXT);
     }
 
     @Override

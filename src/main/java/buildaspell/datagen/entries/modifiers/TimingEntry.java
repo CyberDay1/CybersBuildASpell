@@ -37,8 +37,8 @@ public class TimingEntry extends EntryProvider {
         this.page("echo", () -> BookTextPageModel.create()
                 .withTitle(this.context().pageTitle())
                 .withText(this.context().pageText()));
-        this.pageTitle("Echo (40 mana)");
-        this.pageText("Echo causes the spell to re-trigger after a short delay.\\\n\\\nStackable: each additional Echo adds another re-trigger.\\\n\\\nEach echo strikes at reduced power compared to the one before it, so echoes multiply the spell's output with diminishing returns.\\\n\\\nExcellent for sustained damage or repeated healing.");
+        this.pageTitle("Echo (+80% of the spell)");
+        this.pageText("Echo causes the spell to re-trigger after a short delay.\\\n\\\nStackable: each additional Echo adds another re-trigger.\\\n\\\nEach echo strikes at reduced power compared to the one before it, so echoes multiply the spell's output with diminishing returns.\\\n\\\nEcho asks for no set amount of mana. It charges four fifths of whatever the rest of the spell costs, because an echo casts that whole spell again: what you pay follows what you are repeating. Stacking it compounds the same way.\\\n\\\nExcellent for sustained damage or repeated healing.");
     }
 
     @Override

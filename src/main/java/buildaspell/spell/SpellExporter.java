@@ -175,8 +175,8 @@ public class SpellExporter {
         }
 
         // Enforce component limit on imported spells
-        if (spell.getComponents().size() > Spell.MAX_COMPONENTS) {
-            List<SpellComponent> trimmed = spell.getComponents().subList(0, Spell.MAX_COMPONENTS);
+        if (spell.getComponents().size() > Spell.maxComponents()) {
+            List<SpellComponent> trimmed = spell.getComponents().subList(0, Spell.maxComponents());
             spell.setComponents(new ArrayList<>(trimmed));
         }
 

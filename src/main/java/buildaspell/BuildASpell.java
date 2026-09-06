@@ -49,6 +49,7 @@ public class BuildASpell {
         // Mod bus event handlers (these events fire on the mod bus, not the game bus)
         modEventBus.addListener(ModPackets::registerPackets);
         modEventBus.addListener(ModAttributes::onAttributeModification);
+        modEventBus.addListener(ModCreativeTabs::onBuildCreativeTabContents);
         // Retires defaults that an older release already baked into an existing world's config file.
         modEventBus.addListener(ModConfig::onConfigLoad);
         // Datagen references Modonomicon classes (an optional dep). Only wire the listener

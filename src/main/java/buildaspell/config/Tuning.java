@@ -232,8 +232,21 @@ final class Tuning {
                         "of an effect costs its normal price multiplied by repeatCostGrowth^(k-1), so a wall of",
                         "identical effects gets expensive fast while ordinary mixed spells are untouched.",
                         "Each effect keeps its own count: three Damage plus three Explosion escalate as two",
-                        "separate series, not one run of six. Modifiers are unaffected (they have their own",
-                        "per-stack pricing). 1.0 turns the escalation off and restores a flat per-copy price.");
+                        "separate series, not one run of six. Modifiers escalate the same way under their own",
+                        "key in modifiers.toml. 1.0 turns the escalation off and restores a flat per-copy price.");
+        dd(b, d, "shared", "repeatCostGrowth", 1.5, 1.0, 10.0);
+    }
+
+    static void sharedModifiers(ModConfigSpec.Builder b,
+                                Map<String, ModConfigSpec.DoubleValue> d,
+                                Map<String, ModConfigSpec.IntValue> i) {
+        b.comment("Escalating mana price for stacking the SAME modifier on one effect. The k-th stack on",
+                        "a given effect costs its normal price multiplied by repeatCostGrowth^(k-1), so piling",
+                        "one modifier onto one effect gets expensive fast while spreading it across a spell",
+                        "does not. Each effect counts separately: Increased Power twice on Damage and twice on",
+                        "Explosion is two runs of two, not one run of four. Modifiers attached to the delivery",
+                        "rather than to an effect form one further group of their own. 1.0 turns the escalation",
+                        "off and restores a flat per-stack price.");
         dd(b, d, "shared", "repeatCostGrowth", 1.5, 1.0, 10.0);
     }
 
@@ -296,6 +309,9 @@ final class Tuning {
             dd(b, d, "combo.skeletons", "spawnOffset", 2.0, 0.0, 100.0);
             di(b, i, "combo.skeletons", "lifeSeconds", 60, 0, 100000);
             di(b, i, "combo.skeletons", "lifePerDuration", 30, 0, 100000);
+            // Rolled per skeleton, so a summoned host comes out mixed rather than all one kind.
+            // 1.0 for an all-archer host, 0.0 for an all-swordsman one.
+            dd(b, d, "combo.skeletons", "bowChance", 0.5, 0.0, 1.0);
         });
         combo(b, "vindicators", () -> {
             di(b, i, "combo.vindicators", "countBase", 2, 0, 100);
@@ -418,7 +434,10 @@ final class Tuning {
             case TRACKING -> {
                 di(b, i, p, "projectileLifetimeTicks", 200, 1, 100000);
                 dd(b, d, p, "homingRange", 16.0, 0.0, 256.0);
-                dd(b, d, p, "homingStrength", 0.3, 0.0, 100.0);
+                // How much of the projectile's heading is given over to the target each tick: 0
+                // flies straight past, 1 turns on it instantly. A fraction, so the old ceiling of
+                // 100 no longer means anything and any setting above 1 is read as 1.
+                dd(b, d, p, "homingStrength", 0.3, 0.0, 1.0);
             }
             case TOUCH -> di(b, i, p, "durationTicks", 200, 1, 100000);
             case TRAP -> {
@@ -448,18 +467,37 @@ final class Tuning {
                 di(b, i, p, "searchRadius", 4, 1, 64);
             }
             case INCREASED_AREA -> dd(b, d, p, "rangePerStack", 1.0, 0.0, 256.0);
-            // Caps the effective Fortune/Looting level a stack of Fortunate Son can reach. The raw
-            // stack count used to be passed straight through, and vanilla's ore-drop formula
-            // multiplies by up to (level + 1), so a tall stack multiplied drops without limit.
-            case FORTUNATE_SON -> di(b, i, p, "maxLevel", 3, 0, 100);
+            // Caps the effective Fortune/Looting level a stack of Fortunate Son can reach. This is a
+            // backstop, not the balance lever: the escalating repeat cost is what actually limits a
+            // stack. Each copy costs growth^(k-1) times the last, so against the Mana Pool
+            // attribute's own ceiling of 10000 a caster tops out around 13 stacks bare-handed and 14
+            // with a Runic wand - well inside this cap, which exists only so the number stays finite.
+            case FORTUNATE_SON -> di(b, i, p, "maxLevel", 25, 0, 100);
             case DELAY -> di(b, i, p, "ticksPerStack", 10, 0, 100000);
             case ACCELERATE -> dd(b, d, p, "speedPerStack", 0.5, 0.0, 100.0);
             case ECHO -> {
                 di(b, i, p, "delayTicksPerEcho", 10, 0, 100000);
                 dd(b, d, p, "powerFalloff", 0.8, 0.0, 1.0);
+                // An echo re-casts the whole spell, so it is charged as a share of the whole spell
+                // rather than a flat price: the shipped 1.8 is 80% more. Stacks compound, so two
+                // echoes cost 1.8 x 1.8. 1.0 charges nothing for it, in which case set the
+                // modifier's own baseManaCost to put it back on a fixed price.
+                dd(b, d, p, "totalCostMultiplier", m.getTotalCostMultiplier(), 1.0, 100.0);
             }
+            // Double sends a second projectile, doubling everything the spell does, so like Echo it
+            // is priced as a share of the whole spell. See ECHO above for how the number behaves.
+            case DOUBLE -> dd(b, d, p, "totalCostMultiplier", m.getTotalCostMultiplier(), 1.0, 100.0);
             case LEECH -> dd(b, d, p, "healFractionPerLevel", 0.25, 0.0, 100.0);
-            case SUNDER -> dd(b, d, p, "bonusPerArmorPerLevel", 0.5, 0.0, 100.0);
+            case SUNDER -> {
+                // Sunder multiplies the spell's damage rather than adding a figure of its own, so it
+                // rises and falls with Spell Power like everything else. A target in full diamond is
+                // "fully armored" and gets the whole fraction; half that armor gets half of it; an
+                // unarmored target gets none. maxMultiplier is what several copies on one effect run
+                // into, and is the reason stacking cannot run away.
+                dd(b, d, p, "bonusFractionPerLevel", 0.35, 0.0, 100.0);
+                dd(b, d, p, "maxMultiplier", 3.0, 1.0, 100.0);
+                dd(b, d, p, "fullArmorValue", 20.0, 1.0, 1000.0);
+            }
             case RETURN -> {
                 dd(b, d, p, "catchRadius", 2.0, 0.1, 100.0);
                 dd(b, d, p, "minSpeed", 0.4, 0.0, 100.0);

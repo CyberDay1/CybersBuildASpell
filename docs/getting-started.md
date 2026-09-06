@@ -10,8 +10,8 @@ This guide walks through installing Build a Spell, opening the Spell Builder, an
 
 ## Install
 
-1. Install [NeoForge](https://neoforged.net/) for your Minecraft version (1.21.1, 26.1.x, or 26.2).
-2. Download the jar matching your Minecraft version: `buildaspell-1.0.1-mc<version>.jar`.
+1. Install [NeoForge](https://neoforged.net/) for your Minecraft version (1.21.1, 26.1.2+, or 26.2).
+2. Download the jar matching your Minecraft version: `buildaspell-1.0.3-mc<version>.jar`.
 3. Place it in your `mods/` folder and launch the game.
 
 Optional integrations (NeoPortals, NeoOrigins) are detected automatically when present.
@@ -26,7 +26,9 @@ The builder has three palette sections:
 - **Effects**: choose one or more. These are what the spell actually does.
 - **Modifiers**: optional. These change how the effects behave (more power, larger area, longer duration, and so on).
 
-Drag components into the spell, and the builder shows the running **mana cost**. A spell can hold up to **30 components**.
+Drag components into the spell, and the builder shows the running **mana cost**. The effect chain holds up to **100 entries**, counting each effect and each modifier attached to one; the modifiers you hang on the delivery itself have a separate allowance of 100. Both limits are a server setting, so the server you play on may allow more or fewer. The builder tells you when a row is full rather than accepting a component it cannot keep.
+
+The build area scrolls sideways when a chain grows past its edge: use the scrollbar along the bottom, a tilt wheel, or shift and the mouse wheel.
 
 ## Unlock components
 

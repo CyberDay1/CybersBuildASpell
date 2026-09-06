@@ -13,13 +13,21 @@ public class PlayerManaData {
 
     /**
      * Network form of {@link #CODEC}, used by the attachment type's {@code sync(...)} handler. The
-     * per-second tick sync only fires when mana changed or is below max, so a full-mana player who
-     * respawns or changes dimension would otherwise sit on the client-side default forever.
+     * per-second tick sync only fires when the figure differs from the one the client was last sent,
+     * so a full-mana player who respawns or changes dimension would otherwise sit on the client-side
+     * default forever.
      */
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerManaData> STREAM_CODEC =
             ByteBufCodecs.fromCodecWithRegistries(CODEC);
 
     private float currentMana;
+
+    /**
+     * The figure this player's client was last sent. Server-side only, and deliberately outside
+     * {@link #CODEC}: it describes the connection rather than the player, and starting at NaN means
+     * the first comparison always disagrees, so a freshly loaded player is always sent one packet.
+     */
+    private transient float lastSyncedMana = Float.NaN;
 
     public PlayerManaData() {
         this.currentMana = ManaConstants.DEFAULT_MAX_MANA;
@@ -30,6 +38,12 @@ public class PlayerManaData {
     }
 
     public float getCurrentMana() { return currentMana; }
+
+    public float getLastSyncedMana() { return lastSyncedMana; }
+
+    public void setLastSyncedMana(float mana) {
+        this.lastSyncedMana = mana;
+    }
 
     public void setCurrentMana(float mana) {
         this.currentMana = Math.max(0, mana);

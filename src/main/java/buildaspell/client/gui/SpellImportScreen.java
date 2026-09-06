@@ -60,6 +60,12 @@ public class SpellImportScreen extends Screen {
         setInitialFocus(codeField);
     }
 
+    /** See {@link SpellBuilderScreen#renderBlurredBackground} — the panel is its own backdrop. */
+    @Override
+    protected void renderBlurredBackground(float partial) {
+        // intentionally no-op
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -68,8 +74,8 @@ public class SpellImportScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
 
-        graphics.drawCenteredString(this.font, "Import Spell", centerX, centerY - 80, 0xFFFFFF);
-        graphics.drawCenteredString(this.font, "Paste the spell code below:", centerX, centerY - 60, 0xAAAAAA);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Import Spell", centerX, centerY - 80, 0xFFFFFF);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Paste the spell code below:", centerX, centerY - 60, 0xAAAAAA);
     }
 
     @Override

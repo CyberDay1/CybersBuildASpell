@@ -7,8 +7,6 @@ import buildaspell.entity.DurationAreaEntity;
 import buildaspell.entity.RuneMarkerEntity;
 import buildaspell.entity.SpellProjectileEntity;
 import buildaspell.mana.ManaHelper;
-import buildaspell.mana.PlayerManaData;
-import buildaspell.registry.ModAttachments;
 import buildaspell.registry.ModEntities;
 import buildaspell.spell.*;
 import net.minecraft.core.Direction;
@@ -162,10 +160,9 @@ public class SpellExecutor {
         float manaCost = spell.getManaCost() * buildaspell.item.WandItem.heldDiscountMultiplier(caster);
         float spellPower = ManaHelper.getSpellPower(caster);
 
-        PlayerManaData manaData = caster.getData(ModAttachments.PLAYER_MANA.get());
         boolean chargeMana = consumeMana && !caster.getAbilities().instabuild;
         if (chargeMana) {
-            if (!manaData.consumeMana(manaCost)) {
+            if (!ManaHelper.consumeMana(caster, manaCost)) {
                 return false;
             }
         }
@@ -211,7 +208,7 @@ public class SpellExecutor {
         Vec3 origin = determineOrigin(caster, delivery);
         if (origin == null) {
             if (chargeMana) {
-                manaData.addMana(manaCost);
+                ManaHelper.addMana(caster, manaCost);
             }
             return false;
         }
@@ -283,8 +280,7 @@ public class SpellExecutor {
         boolean charged = consumeMana && !caster.getAbilities().instabuild;
         float manaCost = spell.getManaCost() * buildaspell.item.WandItem.heldDiscountMultiplier(caster);
         if (charged) {
-            PlayerManaData manaData = caster.getData(ModAttachments.PLAYER_MANA.get());
-            if (!manaData.consumeMana(manaCost)) {
+            if (!ManaHelper.consumeMana(caster, manaCost)) {
                 return false;
             }
         }

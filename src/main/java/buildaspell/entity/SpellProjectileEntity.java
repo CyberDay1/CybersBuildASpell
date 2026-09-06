@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -52,6 +53,13 @@ public class SpellProjectileEntity extends Projectile {
      * the whole spell every tick it spent inside the hitbox.
      */
     private final java.util.Set<java.util.UUID> hitEntityIds = new java.util.HashSet<>();
+    /**
+     * What a Tracking projectile is currently steering at. Held across ticks on purpose: picking the
+     * nearest candidate afresh every tick made the projectile swap allegiance mid-flight and weave
+     * between whatever happened to be closest at that instant.
+     */
+    @Nullable
+    private java.util.UUID homingTargetId;
 
     public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> entityType, Level level) {
         super(entityType, level);
@@ -106,25 +114,27 @@ public class SpellProjectileEntity extends Projectile {
             return;
         }
 
-        // Tracking logic
-        if (isTracking && level() instanceof ServerLevel serverLevel) {
-            Entity nearest = null;
-            double nearestDist = buildaspell.config.ModConfig.deliveryDouble(
+        // TRACKING: steer toward the locked-on target. The steering turns the heading the
+        // projectile already has rather than adding to it, so it keeps the speed it was fired at.
+        // Skipped while returning, which does its own steering back to the caster.
+        if (isTracking && !returning && level() instanceof ServerLevel serverLevel) {
+            double homingRange = buildaspell.config.ModConfig.deliveryDouble(
                     DeliveryMethod.TRACKING, "homingRange", 16.0);
-            for (Entity e : serverLevel.getEntities(this, getBoundingBox().inflate(nearestDist))) {
-                if (e != getOwner() && e.isAlive() && !(e instanceof SpellProjectileEntity)) {
-                    double dist = distanceTo(e);
-                    if (dist < nearestDist) {
-                        nearestDist = dist;
-                        nearest = e;
+            LivingEntity target = homingTarget(serverLevel, homingRange);
+            if (target != null) {
+                double turn = buildaspell.config.ModConfig.deliveryDouble(
+                        DeliveryMethod.TRACKING, "homingStrength", 0.3);
+                turn = Math.min(1.0, Math.max(0.0, turn));
+                Vec3 motion = getDeltaMovement();
+                double speed = motion.length();
+                Vec3 toTarget = target.getBoundingBox().getCenter().subtract(position());
+                if (speed > 1.0E-4 && toTarget.lengthSqr() > 1.0E-8) {
+                    Vec3 steered = motion.normalize().scale(1.0 - turn)
+                            .add(toTarget.normalize().scale(turn));
+                    if (steered.lengthSqr() > 1.0E-8) {
+                        setDeltaMovement(steered.normalize().scale(speed));
                     }
                 }
-            }
-            if (nearest != null) {
-                double homingStrength = buildaspell.config.ModConfig.deliveryDouble(
-                        DeliveryMethod.TRACKING, "homingStrength", 0.3);
-                Vec3 direction = nearest.position().subtract(position()).normalize().scale(homingStrength);
-                setDeltaMovement(getDeltaMovement().add(direction));
             }
         }
 
@@ -220,6 +230,45 @@ public class SpellProjectileEntity extends Projectile {
                 discard();
             }
         }
+    }
+
+    /**
+     * The thing a Tracking projectile is flying at. A target is kept once acquired and only given up
+     * when it dies, is struck, or leaves range; only then is a new nearest one chosen.
+     *
+     * <p>Only living things are eligible. Dropped items, experience orbs, arrows, boats and item
+     * frames are all entities too, and homing at those was what sent the projectile veering off in
+     * directions no one had aimed it: in any lived-in world the nearest entity is very often a
+     * dropped item rather than anything worth hitting.
+     */
+    @Nullable
+    private LivingEntity homingTarget(ServerLevel level, double range) {
+        if (homingTargetId != null) {
+            Entity held = level.getEntity(homingTargetId);
+            if (held instanceof LivingEntity living && canHomeAt(living) && distanceTo(living) <= range) {
+                return living;
+            }
+            homingTargetId = null;
+        }
+        LivingEntity best = null;
+        double bestDist = range;
+        for (Entity e : level.getEntities(this, getBoundingBox().inflate(range))) {
+            if (!(e instanceof LivingEntity living) || !canHomeAt(living)) continue;
+            double dist = distanceTo(living);
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = living;
+            }
+        }
+        if (best != null) {
+            homingTargetId = best.getUUID();
+        }
+        return best;
+    }
+
+    /** A target worth steering at: alive, not the caster, and something this projectile could hit. */
+    private boolean canHomeAt(LivingEntity entity) {
+        return entity.isAlive() && canHitEntity(entity);
     }
 
     /**

@@ -193,22 +193,22 @@ public class AbilityRingScreen extends Screen {
                 graphics.pose().popPose();
             } else {
                 centerPanel(graphics, centerX, centerY - 16, centerY + 28, 52);
-                graphics.drawCenteredString(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("Empty Slot " + (hoveredSlot + 1)).withStyle(ChatFormatting.GRAY),
                         centerX, centerY - 10, 0xFFFFFFFF);
-                graphics.drawCenteredString(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("No spell configured").withStyle(ChatFormatting.DARK_GRAY),
                         centerX, centerY + 5, 0xFF888888);
-                graphics.drawCenteredString(font,
+                GuiTheme.centeredTextNoShadow(graphics, font,
                         Component.literal("ESC to close"),
                         centerX, centerY + 20, 0xFF888888);
             }
         } else {
             centerPanel(graphics, centerX, centerY - 16, centerY + 22, 46);
-            graphics.drawCenteredString(font,
+            GuiTheme.centeredTextNoShadow(graphics, font,
                     Component.literal("Select a Spell"),
                     centerX, centerY - 10, 0xFFFFFFFF);
-            graphics.drawCenteredString(font,
+            GuiTheme.centeredTextNoShadow(graphics, font,
                     Component.literal("ESC to close"),
                     centerX, centerY + 10, 0xFF888888);
         }

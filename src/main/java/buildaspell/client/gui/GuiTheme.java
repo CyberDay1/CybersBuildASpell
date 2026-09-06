@@ -1,6 +1,8 @@
 package buildaspell.client.gui;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 /**
@@ -44,6 +46,21 @@ public final class GuiTheme {
     public static final int SLOT_BORDER  = 0xFF7E54B8;
     /** Translucent amethyst hover wash. */
     public static final int HOVER        = 0x50AE74E8;
+
+    // ── Text ────────────────────────────────────────────────────────────
+    /**
+     * Centred text with the drop shadow OFF. Vanilla's {@code drawCenteredString} has no
+     * no-shadow overload, and a shadow under this palette's small bold headers doubles every
+     * glyph a pixel down-right, which reads as blur rather than as depth. Every screen here
+     * centres through these; {@code drawString(..., false)} is already the rule elsewhere.
+     */
+    public static void centeredTextNoShadow(GuiGraphics g, Font font, Component text, int cx, int y, int color) {
+        g.drawString(font, text, cx - font.width(text) / 2, y, color, false);
+    }
+
+    public static void centeredTextNoShadow(GuiGraphics g, Font font, String text, int cx, int y, int color) {
+        g.drawString(font, text, cx - font.width(text) / 2, y, color, false);
+    }
 
     // ── Colour maths ────────────────────────────────────────────────────
     public static int lerpColor(int a, int b, float t) {

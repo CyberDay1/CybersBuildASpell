@@ -46,11 +46,16 @@ public class PlayerManaEvents {
             manaData.setCurrentMana(maxMana);
         }
 
-        // Sync to client once per second when mana changed
+        // Sync once per second, and only when the figure differs from the one the client already
+        // holds. Comparing against the previous tick instead meant the last step of regen was never
+        // sent: mana almost always finishes filling between two sync ticks, and by the time the next
+        // one came round the value had stopped changing, so the bar rested a second's regen short of
+        // full and stayed there.
         if (player.tickCount % TICKS_PER_SECOND == 0 && player instanceof ServerPlayer serverPlayer) {
             float current = manaData.getCurrentMana();
-            if (current != previousMana || current != maxMana) {
+            if (current != manaData.getLastSyncedMana()) {
                 PacketDistributor.sendToPlayer(serverPlayer, new SyncPlayerManaPacket(current));
+                manaData.setLastSyncedMana(current);
             }
         }
     }

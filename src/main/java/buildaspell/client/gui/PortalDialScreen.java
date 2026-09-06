@@ -97,6 +97,12 @@ public class PortalDialScreen extends Screen {
         PacketDistributor.sendToServer(new ResizePortalPacket(sourcePortalUUID, portalWidth, portalHeight));
     }
 
+    /** See {@link SpellBuilderScreen#renderBlurredBackground} — COLOR_SCRIM already hides the world. */
+    @Override
+    protected void renderBlurredBackground(float partial) {
+        // intentionally no-op
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -104,10 +110,10 @@ public class PortalDialScreen extends Screen {
         graphics.fill(0, 0, this.width, this.height, COLOR_SCRIM);
         super.render(graphics, mouseX, mouseY, partialTick);
 
-        graphics.drawCenteredString(this.font, "Select Destination Portal", this.width / 2, 20, COLOR_HEADER);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Select Destination Portal", this.width / 2, 20, COLOR_HEADER);
         int portalCount = (int) discoveredPortals.stream()
                 .filter(p -> !p.getPortalUUID().equals(sourcePortalUUID)).count();
-        graphics.drawCenteredString(this.font, "Discovered Portals: " + portalCount, this.width / 2, 35, COLOR_SUBTLE);
+        GuiTheme.centeredTextNoShadow(graphics, this.font, "Discovered Portals: " + portalCount, this.width / 2, 35, COLOR_SUBTLE);
 
         // Render slider labels and values
         int sliderAreaTop = this.height - 75;

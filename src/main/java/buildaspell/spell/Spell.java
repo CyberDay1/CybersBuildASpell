@@ -15,7 +15,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class Spell {
-    public static final int MAX_COMPONENTS = 30;
+    /**
+     * Default cap on each of the two lists a spell holds: the effect chain and the delivery's own
+     * modifiers. Server owners can move it with the {@code maxSpellComponents} setting in
+     * {@code general.toml}, so runtime checks should read {@link #maxComponents()} rather than this
+     * constant, which is only the fallback.
+     */
+    public static final int MAX_COMPONENTS = 100;
+
+    /**
+     * The cap actually in force. This is a server setting and syncs to clients on login, so the
+     * builder and the save path agree on it.
+     */
+    public static int maxComponents() {
+        return ModConfig.getMaxSpellComponents();
+    }
 
     public static final Codec<Spell> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             DeliveryMethod.CODEC.optionalFieldOf("delivery").forGetter(s -> Optional.ofNullable(s.delivery)),
@@ -113,7 +127,7 @@ public class Spell {
             addDeliveryModifier(mod.modifier());
             return;
         }
-        if (components.size() < MAX_COMPONENTS) {
+        if (components.size() < maxComponents()) {
             // Enforce non-stackable modifier limit: only allow one instance
             if (component instanceof SpellComponent.Modifier mod && !mod.modifier().isStackable()) {
                 if (hasModifier(mod.modifier())) {
@@ -127,7 +141,7 @@ public class Spell {
 
     /** Adds a roster modifier to the delivery, honoring the same non-stackable single-instance rule. */
     public void addDeliveryModifier(SpellModifier modifier) {
-        if (deliveryModifiers.size() >= MAX_COMPONENTS) return;
+        if (deliveryModifiers.size() >= maxComponents()) return;
         if (!modifier.isStackable() && deliveryModifiers.contains(modifier)) return;
         deliveryModifiers.add(modifier);
         invalidateCache();
@@ -267,13 +281,13 @@ public class Spell {
     public int getDelayLevel() { return getModifierCount(SpellModifier.DELAY); }
     public int getDurationLevel() { return getModifierCount(SpellModifier.DURATION); }
     /**
-     * Capped on purpose: this feeds a real Fortune enchantment level and a Looting level, and
-     * vanilla's ore-drop formula multiplies by up to (level + 1), so an uncapped stack multiplied
-     * drops without limit.
+     * Still capped, but only as a backstop: this feeds a real Fortune and Looting level, and
+     * vanilla's ore-drop formula multiplies by up to (level + 1), so the number has to stay finite.
+     * What actually limits a stack is the escalating repeat cost - see {@link #getCostBreakdown()}.
      */
     public int getFortuneLevel() {
         int stacks = getModifierCount(SpellModifier.FORTUNATE_SON);
-        return Math.min(stacks, ModConfig.modifierInt(SpellModifier.FORTUNATE_SON, "maxLevel", 3));
+        return Math.min(stacks, ModConfig.modifierInt(SpellModifier.FORTUNATE_SON, "maxLevel", 25));
     }
     public boolean hasGentleness() { return hasModifier(SpellModifier.GENTLENESS); }
     public boolean hasWall() { return hasModifier(SpellModifier.WALL); }
@@ -285,7 +299,31 @@ public class Spell {
     public boolean hasReturn() { return hasModifier(SpellModifier.RETURN); }
 
     public float getManaCost() {
-        float cost = delivery != null ? ModConfig.getDeliveryCost(delivery) : 0;
+        return getCostBreakdown().total();
+    }
+
+    /**
+     * What every part of this spell charges, split out piece by piece. {@link #getManaCost()} is
+     * simply the sum. The spell builder shows a component's entry in its tooltip, so what a chip
+     * claims to cost is the same number the caster is charged for it - a base price would be wrong
+     * for every repeat, and for anything a combo has stopped charging for.
+     *
+     * @param delivery          the delivery method's own cost, or 0 when none is chosen
+     * @param components        one entry per {@link #getComponents()} entry, in the same order
+     * @param deliveryModifiers one entry per {@link #getDeliveryModifiers()} entry, in the same order
+     */
+    public record CostBreakdown(float delivery, float[] components, float[] deliveryModifiers) {
+        public float total() {
+            float sum = delivery;
+            for (float part : components) sum += part;
+            for (float part : deliveryModifiers) sum += part;
+            return sum;
+        }
+    }
+
+    public CostBreakdown getCostBreakdown() {
+        float deliveryCost = delivery != null ? ModConfig.getDeliveryCost(delivery) : 0;
+        float[] componentCosts = new float[components.size()];
         // Repeating one effect escalates geometrically: the k-th copy of a given effect costs its
         // normal price times growth^(k-1). Counts are per effect identity, so Damage x3 + Explosion
         // x3 price as two independent series rather than one combined run of six. At growth = 1.0
@@ -293,32 +331,116 @@ public class Spell {
         // old flat per-copy total and a server owner can switch the escalation off cleanly.
         double growth = ModConfig.sharedEffectDouble("repeatCostGrowth", 1.5);
         Map<String, Integer> repeats = new HashMap<>();
-        for (SpellComponent component : components) {
+        for (int i = 0; i < components.size(); i++) {
+            SpellComponent component = components.get(i);
             float base;
             if (component instanceof SpellComponent.Effect effect) {
                 base = ModConfig.getEffectCost(effect.effect());
             } else if (component instanceof SpellComponent.DataEffect de) {
                 base = dataEffectCost(de.effectId());
             } else {
+                // Modifiers are priced in the second pass below. A CompatEffect is priced at
+                // nothing on purpose: this mod never executes one - it is a marker another mod
+                // reads back off the spell via getCompatEffects() - so there is no cost of ours
+                // to charge for it, and no definition here that could carry one.
                 continue;
             }
             // Type-qualified key: an enum effect's id is a bare name, a datapack effect's is a
             // namespaced id, so they can never be conflated into the same series.
             int k = repeats.merge(component.type() + "/" + component.id(), 1, Integer::sum);
-            cost += base * (float) Math.pow(growth, k - 1);
+            componentCosts[i] = base * (float) Math.pow(growth, k - 1);
         }
-        // Modifiers are charged per stack, but if this spell forms a combo that hard-caps a
-        // modifier, stacks beyond that cap do nothing and so are not charged any mana.
+        // Modifiers escalate the same way, but per effect rather than per spell: piling one modifier
+        // onto one effect is what gets expensive, while spreading the same modifier across several
+        // effects prices each run on its own. A modifier binds to the effect it follows, so each
+        // effect component opens a fresh group; the delivery-level bucket is one further group.
+        // If this spell forms a combo that hard-caps a modifier, stacks beyond that cap do nothing
+        // and so are charged nothing - and, being uncharged, they do not advance the escalation.
         buildaspell.spell.data.ComboDefinition combo = buildaspell.spell.data.ComboRegistry.detect(this);
         Map<SpellModifier, Integer> caps = combo != null ? combo.modifierCaps() : Map.of();
-        for (Map.Entry<SpellModifier, Integer> entry : getModifierCounts().entrySet()) {
-            SpellModifier modifier = entry.getKey();
-            int count = entry.getValue();
-            Integer cap = caps.get(modifier);
-            int charged = cap != null ? Math.min(count, cap) : count;
-            cost += ModConfig.getModifierCost(modifier, charged);
+        double modifierGrowth = ModConfig.sharedModifierDouble("repeatCostGrowth", 1.5);
+        Map<SpellModifier, Integer> chargedTotals = new EnumMap<>(SpellModifier.class);
+        Map<SpellModifier, Integer> group = new EnumMap<>(SpellModifier.class);
+        List<PendingMultiplier> pending = new ArrayList<>();
+        for (int i = 0; i < components.size(); i++) {
+            if (components.get(i) instanceof SpellComponent.Modifier mod) {
+                priceModifierStack(mod.modifier(), componentCosts, i,
+                        group, chargedTotals, caps, modifierGrowth, pending);
+            } else {
+                group.clear();
+            }
         }
-        return cost;
+        float[] deliveryModifierCosts = new float[deliveryModifiers.size()];
+        Map<SpellModifier, Integer> deliveryGroup = new EnumMap<>(SpellModifier.class);
+        for (int i = 0; i < deliveryModifiers.size(); i++) {
+            priceModifierStack(deliveryModifiers.get(i), deliveryModifierCosts, i,
+                    deliveryGroup, chargedTotals, caps, modifierGrowth, pending);
+        }
+        settleMultipliers(deliveryCost, componentCosts, deliveryModifierCosts, pending);
+        return new CostBreakdown(deliveryCost, componentCosts, deliveryModifierCosts);
+    }
+
+    /**
+     * A stack of a modifier that charges a percentage of the whole spell rather than a fixed price,
+     * held back until everything else has been priced. {@code costs[index]} is where its charge goes,
+     * which is the same slot the flat pass wrote to, so the breakdown keeps one entry per chip.
+     */
+    private record PendingMultiplier(float[] costs, int index, double multiplier) {}
+
+    /**
+     * Charges the modifiers that price themselves as a share of the spell. Double and Echo each
+     * re-scale everything the spell does - Double sends a second projectile, Echo re-casts the whole
+     * thing - so a flat price made them nearly free on a large spell and most of the bill on a small
+     * one. Each stack is charged the difference it makes to the running total, which is what makes
+     * a second stack cost more than the first without the repeat escalation touching it: two 80%
+     * stacks come to 1.8 x 1.8, not 1.8 + 1.8.
+     */
+    private static void settleMultipliers(float deliveryCost, float[] componentCosts,
+                                          float[] deliveryModifierCosts,
+                                          List<PendingMultiplier> pending) {
+        if (pending.isEmpty()) return;
+        float running = deliveryCost;
+        for (float part : componentCosts) running += part;
+        for (float part : deliveryModifierCosts) running += part;
+        for (PendingMultiplier p : pending) {
+            float increment = (float) (running * (p.multiplier() - 1.0));
+            p.costs()[p.index()] += increment;
+            running += increment;
+        }
+    }
+
+    /**
+     * Prices one stack of a modifier into {@code costs[index]} and records it. {@code group} counts
+     * stacks within the effect (or the delivery bucket) currently being priced and drives the
+     * escalation exponent; {@code chargedTotals} counts them across the whole spell and is what a
+     * combo cap is measured against, so a capped modifier stops costing mana once the cap is met no
+     * matter how the stacks are spread. At growth 1.0 every factor is exactly 1.0 and this collapses
+     * to a flat per-stack price. A stack that also charges a share of the whole spell is added to
+     * {@code pending} for {@link #settleMultipliers} to finish once the flat total is known.
+     */
+    private static void priceModifierStack(SpellModifier modifier, float[] costs, int index,
+                                           Map<SpellModifier, Integer> group,
+                                           Map<SpellModifier, Integer> chargedTotals,
+                                           Map<SpellModifier, Integer> caps,
+                                           double growth,
+                                           List<PendingMultiplier> pending) {
+        Integer cap = caps.get(modifier);
+        int alreadyCharged = chargedTotals.getOrDefault(modifier, 0);
+        if (cap != null && alreadyCharged >= cap) {
+            costs[index] = 0f;
+            return;
+        }
+        chargedTotals.put(modifier, alreadyCharged + 1);
+        int k = group.merge(modifier, 1, Integer::sum);
+        costs[index] = ModConfig.getModifierCost(modifier, 1) * (float) Math.pow(growth, k - 1);
+        // A modifier that also takes a share of the whole spell cannot be priced yet - the rest of
+        // the spell is still being totalled. A capped stack never reaches here, so a combo that caps
+        // one of these stops it multiplying just as it stops it charging.
+        double multiplier = ModConfig.modifierDouble(
+                modifier, "totalCostMultiplier", modifier.getTotalCostMultiplier());
+        if (multiplier > 1.0) {
+            pending.add(new PendingMultiplier(costs, index, multiplier));
+        }
     }
 
     public float getBaseCost() {
@@ -340,10 +462,26 @@ public class Spell {
         return cost;
     }
 
-    /** Base mana cost for a datapack effect, taken from its synced display metadata (0 if absent). */
+    /**
+     * Base mana cost for a datapack effect (0 if the effect is unknown here).
+     *
+     * <p>The definitions themselves are a server-side datapack load, so a player connected to a
+     * remote server has none of them and would price every datapack effect at zero while building a
+     * spell. What that player does have is the display metadata the server synced for the builder's
+     * palette, which carries the cost, so fall back to it. On a server the definitions are present
+     * and authoritative, and the synced cache there is empty, so this fallback never fires.
+     */
     private static float dataEffectCost(ResourceLocation id) {
         EffectDefinition def = EffectRegistry.get(id);
-        return def != null ? def.display().cost().orElse(0.0).floatValue() : 0f;
+        if (def != null) {
+            return def.display().cost().orElse(0.0).floatValue();
+        }
+        for (var entry : buildaspell.client.ClientComponentRegistry.effects()) {
+            if (entry.id().equals(id)) {
+                return entry.display().cost().orElse(0.0).floatValue();
+            }
+        }
+        return 0f;
     }
 
     private void invalidateCache() {

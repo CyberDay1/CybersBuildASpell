@@ -100,6 +100,8 @@ public class SpellGuidebookLangProvider extends AbstractModonomiconLanguageProvi
         add("gui.buildaspell.spell_builder.require_effect", "Please add at least one effect!");
         add("gui.buildaspell.spell_builder.modifier_no_effect", "%s has no effect on %s — not added.");
         add("gui.buildaspell.spell_builder.modifier_no_delivery", "%s needs a projectile delivery — not added.");
+        add("gui.buildaspell.spell_builder.chain_full", "This spell already holds %s effects and modifiers — not added.");
+        add("gui.buildaspell.spell_builder.delivery_full", "The delivery already holds %s modifiers — not added.");
         add("gui.buildaspell.spell_builder.spell_saved", "Spell saved to slot %s!");
         add("gui.buildaspell.spell_builder.no_export", "No spell to export!");
         add("gui.buildaspell.spell_builder.exported", "Spell exported:");

@@ -152,6 +152,9 @@ public class ComboExecutors {
             if (golem != null) {
                 golem.setPos(origin.x + offsetX, origin.y, origin.z + offsetZ);
                 golem.setPlayerCreated(true);
+                // Lifetime 0: conjured golems stay, but the tag still marks them as summons so
+                // they never turn on their caster and never pay out the iron they were made from.
+                buildaspell.spell.MobSpellState.tagSummon(golem, caster, 0);
                 level.addFreshEntity(golem);
             }
         }
@@ -229,6 +232,7 @@ public class ComboExecutors {
             if (skeleton != null) {
                 skeleton.setPos(origin.x + offsetX, origin.y, origin.z + offsetZ);
                 skeleton.setPersistenceRequired();
+                armSummonedSkeleton(skeleton, level.getRandom());
                 // Summons never re-aggro their caster and dissolve after their lifetime runs out.
                 buildaspell.spell.MobSpellState.tagSummon(skeleton, caster,
                         20 * skeletonLifeSeconds);
@@ -236,6 +240,26 @@ public class ComboExecutors {
                 skeleton.setTarget(null);
             }
         }
+    }
+
+    /**
+     * Hands a conjured skeleton its weapon. {@code EntityType.create} does not run
+     * {@code finalizeSpawn}, which is where vanilla arms a skeleton, so a summoned one used to
+     * arrive bare-handed and fight with its fists. Each skeleton draws either a bow or a sword,
+     * split by {@code bowChance}; putting the item in its hand is also what re-picks the skeleton's
+     * attack goal, so the sword-bearers close to melee on their own while the archers hold off.
+     * Archers need no arrows - a skeleton with a bow and an empty quiver falls back to plain ones.
+     * The weapon is conjured along with its bearer and goes when the bearer goes: its drop chance
+     * is pinned to zero, so a summoned host is never a source of free iron.
+     */
+    private static void armSummonedSkeleton(Skeleton skeleton, net.minecraft.util.RandomSource random) {
+        double bowChance = ModConfig.comboDouble("skeletons", "bowChance", 0.5);
+        net.minecraft.world.item.Item weapon = random.nextDouble() < bowChance
+                ? net.minecraft.world.item.Items.BOW
+                : net.minecraft.world.item.Items.IRON_SWORD;
+        skeleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                new net.minecraft.world.item.ItemStack(weapon));
+        skeleton.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 0.0f);
     }
 
     public static void executeVindicators(Player caster, Level level, Vec3 origin, Spell spell, float spellPower) {
@@ -271,6 +295,12 @@ public class ComboExecutors {
             if (vindicator != null) {
                 vindicator.setPos(origin.x + offsetX, origin.y, origin.z + offsetZ);
                 vindicator.setPersistenceRequired();
+                // Same gap as the skeletons: the axe a vindicator is known for is handed out in
+                // finalizeSpawn, which a directly created entity never runs. Unarmed, it hit for a
+                // third of what it should.
+                vindicator.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                        new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_AXE));
+                vindicator.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND, 0.0f);
                 // Summons never re-aggro their caster and dissolve after their lifetime runs out.
                 buildaspell.spell.MobSpellState.tagSummon(vindicator, caster,
                         20 * vindicatorLifeSeconds);

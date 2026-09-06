@@ -32,6 +32,14 @@ public final class MobSpellState {
         }
     }
 
+    /**
+     * @return true if this mob was conjured by a spell, whether or not it has a lifetime. Summons
+     *         are made rather than caught, so they carry nothing that can be taken off them.
+     */
+    public static boolean isSummon(Mob mob) {
+        return mob.getPersistentData().contains(SUMMONER_KEY);
+    }
+
     /** @return true if this mob is a spell summon whose lifetime has run out. */
     public static boolean isExpiredSummon(Mob mob) {
         CompoundTag data = mob.getPersistentData();

@@ -3,6 +3,7 @@ package buildaspell.spell.execution;
 import buildaspell.block.SpellLightBlock;
 import buildaspell.config.ModConfig;
 import buildaspell.registry.ModBlocks;
+import buildaspell.registry.ModTags;
 import buildaspell.spell.MarkManager;
 import buildaspell.spell.Spell;
 import buildaspell.spell.SpellEffect;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -82,7 +84,9 @@ public class EffectExecutors {
         int fortuneLevel = spell.getFortuneLevel();
         int sunderLevel = spell.getSunderLevel();
         int leechLevel = spell.getLeechLevel();
-        double sunderPerArmor = ModConfig.modifierDouble(SpellModifier.SUNDER, "bonusPerArmorPerLevel", 0.5);
+        double sunderFraction = ModConfig.modifierDouble(SpellModifier.SUNDER, "bonusFractionPerLevel", 0.35);
+        double sunderMaxMult = ModConfig.modifierDouble(SpellModifier.SUNDER, "maxMultiplier", 3.0);
+        double sunderFullArmor = ModConfig.modifierDouble(SpellModifier.SUNDER, "fullArmorValue", 20.0);
         double leechFraction = ModConfig.modifierDouble(SpellModifier.LEECH, "healFractionPerLevel", 0.25);
         float leechHealed = 0f;
 
@@ -90,11 +94,15 @@ public class EffectExecutors {
             if (fortuneLevel > 0) {
                 SpellLootingTracker.setLootingLevel(entity.getUUID(), fortuneLevel);
             }
-            // Sunder rewards punching through defenses: the more armor the target wears, the more
-            // bonus damage it suffers (magic already ignores the armor bar, so this is the "anti-tank" knob).
+            // Sunder rewards punching through defenses: the more armor the target wears, the harder
+            // the spell lands on it. It multiplies the damage the spell was already going to do, so
+            // it grows with Spell Power the way every other number here does, and the multiplier is
+            // capped so that piling copies onto one effect tapers off instead of running away.
             float dealt = damage;
             if (sunderLevel > 0) {
-                dealt += (float) (entity.getArmorValue() * sunderLevel * sunderPerArmor);
+                double armorFraction = Math.min(entity.getArmorValue() / sunderFullArmor, 1.0);
+                double multiplier = Math.min(1.0 + armorFraction * sunderFraction * sunderLevel, sunderMaxMult);
+                dealt = (float) (dealt * multiplier);
             }
             entity.hurt(damageSource, dealt);
             entity.invulnerableTime = ModConfig.effectInt(SpellEffect.DAMAGE, "invulnTicks", 5);
@@ -316,9 +324,18 @@ public class EffectExecutors {
 
     public static void executeReap(Player caster, Level level, Vec3 origin, Spell spell, float spellPower) {
         float range = spell.getRange();
-        boolean hasFortune = spell.getFortuneLevel() > 0;
         int fortuneLevel = spell.getFortuneLevel();
         boolean hasGentleness = spell.hasGentleness();
+
+        // Fortune reaches the harvest as a real enchantment on a real tool, so the crop's own loot
+        // table decides what it multiplies. Growing the finished drops instead added to every stack
+        // the table produced, including the ones Fortune was never meant to touch.
+        ItemStack harvestTool = ItemStack.EMPTY;
+        if (fortuneLevel > 0 && !hasGentleness) {
+            harvestTool = new ItemStack(Items.DIAMOND_HOE);
+            harvestTool.enchant(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                    .getOrThrow(Enchantments.FORTUNE), fortuneLevel);
+        }
 
         BlockPos centerPos = BlockPos.containing(origin);
         for (BlockPos pos : BlockPos.betweenClosed(
@@ -329,15 +346,9 @@ public class EffectExecutors {
                 BlockState state = level.getBlockState(pos);
                 if (state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state)) {
                     List<ItemStack> drops = Block.getDrops(state, (ServerLevel) level, pos,
-                            level.getBlockEntity(pos), caster, ItemStack.EMPTY);
+                            level.getBlockEntity(pos), caster, harvestTool);
 
                     for (ItemStack drop : drops) {
-                        if (hasFortune && !hasGentleness && drop.getCount() < drop.getMaxStackSize()) {
-                            int bonusItems = level.getRandom().nextInt(fortuneLevel + 1);
-                            // Clamped to the item's own limit so a harvest can never mint an
-                            // oversized stack.
-                            drop.setCount(Math.min(drop.getMaxStackSize(), drop.getCount() + bonusItems));
-                        }
                         ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5,
                                 pos.getY() + 0.5, pos.getZ() + 0.5, drop);
                         level.addFreshEntity(itemEntity);
@@ -859,6 +870,9 @@ public class EffectExecutors {
                 wolf.setPos(origin.x + offsetX, origin.y, origin.z + offsetZ);
                 wolf.tame(caster);
                 wolf.setOrderedToSit(false);
+                // Lifetime 0: a summoned wolf is a permanent companion, but it is still conjured,
+                // so the tag marks it as a summon and it drops nothing when it falls.
+                buildaspell.spell.MobSpellState.tagSummon(wolf, caster, 0);
                 level.addFreshEntity(wolf);
             }
         }
@@ -1052,17 +1066,7 @@ public class EffectExecutors {
                 SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.PLAYERS, 0.7f, 1.2f);
 
         BlockPos centerPos = BlockPos.containing(origin);
-        BlockState targetState = level.getBlockState(centerPos);
-
-        List<? extends String> allowedBlocks = ModConfig.getConjureAllowedBlocks();
-        BlockState conjureState;
-
-        if (!targetState.isAir() && allowedBlocks.contains(
-                targetState.getBlock().builtInRegistryHolder().key().location().toString())) {
-            conjureState = targetState;
-        } else {
-            conjureState = Blocks.STONE.defaultBlockState();
-        }
+        BlockState conjureState = conjureMaterial(caster);
 
         int expandRadius = ModConfig.effectInt(SpellEffect.CONJURE, "expandRadiusBase", 1) + areaLevel;
         int fillRadius = fillLevel > 0
@@ -1104,6 +1108,33 @@ public class EffectExecutors {
                 }
             }
         }
+    }
+
+    /**
+     * What Conjure builds with: the block held in the off hand, or stone.
+     *
+     * <p>
+     * The off hand is a choice the caster makes and can see, which is the point &mdash; Conjure used
+     * to copy whatever block the spell happened to land on, so the material changed with your aim and
+     * there was no way to ask for anything in open air. Holding the block you want says it plainly.
+     *
+     * <p>
+     * The stack is only read, never consumed. Conjure's price is mana; the off-hand block is the
+     * pattern, not the ingredient, so one cobblestone lets you build all day.
+     *
+     * <p>
+     * Anything outside {@link ModTags#CONJURABLE} falls back to stone rather than refusing to cast,
+     * because the tag exists to stop Conjure minting valuables, not to punish holding a sword. See
+     * that tag for what belongs in it.
+     */
+    private static BlockState conjureMaterial(Player caster) {
+        if (caster.getOffhandItem().getItem() instanceof BlockItem blockItem) {
+            Block block = blockItem.getBlock();
+            if (block.defaultBlockState().is(ModTags.CONJURABLE)) {
+                return block.defaultBlockState();
+            }
+        }
+        return Blocks.STONE.defaultBlockState();
     }
 
     // ─── GROWTH ─────────────────────────────────────────────────────────────────

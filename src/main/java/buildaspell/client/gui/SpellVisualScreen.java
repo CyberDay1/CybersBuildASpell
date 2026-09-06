@@ -136,6 +136,12 @@ public class SpellVisualScreen extends Screen {
                 Component.translatable("gui.buildaspell.trail." + TRAILS[trailIndex]));
     }
 
+    /** See {@link SpellBuilderScreen#renderBlurredBackground} — the panel is its own backdrop. */
+    @Override
+    protected void renderBlurredBackground(float partial) {
+        // intentionally no-op
+    }
+
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(gfx, mouseX, mouseY, partialTick);
@@ -148,8 +154,8 @@ public class SpellVisualScreen extends Screen {
         gfx.fill(px, py, px + pw, py + ph, PANEL_BG);
         gfx.renderOutline(px, py, pw, ph, PANEL_BORDER);
 
-        gfx.drawCenteredString(this.font, this.title.copy().withStyle(ChatFormatting.BOLD), cx, py + 6, HEADER);
-        gfx.drawCenteredString(this.font,
+        GuiTheme.centeredTextNoShadow(gfx, this.font, this.title.copy().withStyle(ChatFormatting.BOLD), cx, py + 6, HEADER);
+        GuiTheme.centeredTextNoShadow(gfx, this.font,
                 Component.translatable("gui.buildaspell.spell_builder.visuals_note"), cx, py + 18, TEXT_DIM);
 
         // live color swatch + simple shape silhouette
