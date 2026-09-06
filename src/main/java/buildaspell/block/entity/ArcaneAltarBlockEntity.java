@@ -42,6 +42,10 @@ public class ArcaneAltarBlockEntity extends BlockEntity implements Container, Me
     public static final int INGREDIENT_START = 1;
     public static final int INGREDIENT_COUNT = 4;
     public static final int MAX_STACK_PER_SLOT = 320;
+    // Highest level the altar will sell. 255 is the ceiling an enchantment level is stored at, so
+    // this is "no cap" in practice. Not to be confused with the per-enchantment config caps: those
+    // limit how far a level still scales the bonus, not how high a level can be bought.
+    public static final int MAX_ENCHANT_LEVEL = 255;
     public static final List<Item> INGREDIENT_MATERIALS =
             List.of(Items.IRON_INGOT, Items.GOLD_INGOT, Items.DIAMOND, Items.NETHERITE_INGOT);
     private final NonNullList<ItemStack> items = NonNullList.withSize(1 + INGREDIENT_COUNT, ItemStack.EMPTY);
