@@ -19,7 +19,7 @@ Fill's reach limit was acting as a wall of its own, so a room wider than the lim
 - **Stacking one modifier onto one effect costs more with each stack**, counted per effect, with delivery modifiers forming one further group. Server-configurable; 1 restores flat pricing.
 - **Fortunate Son stacks as far as you can pay for**: the cap of three used to charge you for a fourth and give you nothing back. The escalating cost is the limit now, the cap survives as a backstop at 25, and a server still on the old three is moved up on the first world load.
 - **The Spell Builder's build area scrolls sideways**, since modifiers extend their effect's row to the right rather than wrapping, and a spell holds a hundred entries in each of its two lists, up from thirty. `maxSpellComponents` in `general.toml` sets a server's own figure.
-- **Iron's Spells 'n Spellbooks can keep the mana**: on the 1.21.1 build, `deferManaToIronsSpellbooks` in `general.toml` spends and refills out of Iron's pool instead of running a second one beside it, so gear granting `irons_spellbooks:max_mana` moves both mods together. Iron's then sets the pool and its refill rate, so the altar stops offering Mana Pool and Mana Regeneration. Off by default.
+- **Build a Spell can run on Iron's Spells 'n Spellbooks' mana**: on the 1.21.1 build, `deferManaToIronsSpellbooks` in `general.toml` spends and refills out of Iron's pool instead of its own, so gear granting `irons_spellbooks:max_mana` moves both mods together. Iron's then sets the pool and its refill rate, so the altar stops offering Mana Pool and Mana Regeneration. Off by default.
 
 ### Fixes
 
